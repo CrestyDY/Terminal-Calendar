@@ -132,7 +132,8 @@ void processCommand(TaskManager& manager, const std::string& command) {
                     }
                 }
             }
-
+            int month = (deadline[5] - '0')*10 + (deadline[6] - '0');
+            std::cout << month << endl;
             manager.addTask(description, deadline);
             if (!deadline.empty()) {
                 exportToICSFile(description, deadline);

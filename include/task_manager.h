@@ -2,12 +2,13 @@
 #define TASK_MANAGER_H
 
 #include <string>
-#include <vector>
 #include <iostream>
 #include <fstream>
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <map>
+#include <vector>
 
 struct Task {
     int id;
@@ -18,7 +19,7 @@ struct Task {
 
 class TaskManager {
 private:
-    std::vector<Task> tasks;
+    std::map<int, std::vector<Task>> tasks;
     std::string filename;
     int nextId;
     static int CELL_WIDTH;

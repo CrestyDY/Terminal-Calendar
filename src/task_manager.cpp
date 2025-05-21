@@ -33,12 +33,13 @@ void TaskManager::loadTasks() {
         
         std::getline(iss, task.description, '|');
         std::getline(iss, task.deadline, '|');
+        int month = (task.deadline[5]-'0')*10 + (task.deadline[6]-'0');
         
         int completed;
         iss >> completed;
         task.completed = completed == 1;
         
-        tasks.push_back(task);
+        tasks[month].push_back(task);
         
         if (task.id >= nextId) {
             nextId = task.id + 1;
@@ -50,12 +51,14 @@ void TaskManager::loadTasks() {
 
 void TaskManager::saveTasks() {
     std::ofstream outFile(filename);
-    
-    for (const auto& task : tasks) {
-        outFile << task.id << "|" << task.description << "|" 
-                << task.deadline << "|" << (task.completed ? 1 : 0) << std::endl;
+    for (int i = 1; i < 13; i++){
+        if (!tasks[i].empty()){
+            for (const auto& task : tasks[i]) {
+                outFile << task.id << "|" << task.description << "|" 
+                        << task.deadline << "|" << (task.completed ? 1 : 0) << std::endl;
+            }
+        }
     }
-    
     outFile.close();
 }
 
@@ -107,10 +110,11 @@ void TaskManager::addTask(const std::string& description, const std::string& dea
     } else {
         task.deadline = deadline;
     }
+    int month = (task.deadline[5]-'0')*10 + (task.deadline[6]-'0');
     
     task.completed = false;
     
-    tasks.push_back(task);
+    tasks[month].push_back(task);
     saveTasks();
     
     std::cout << "Task added with ID " << task.id << std::endl;
@@ -129,40 +133,52 @@ void TaskManager::listTasks(bool all) {
               << "Status" << std::endl;
     std::cout << std::string(80, '-') << std::endl;
     
-    for (const auto& task : tasks) {
-        if (all || !task.completed) {
-            std::cout << std::left 
-                      << std::setw(5) << task.id 
-                      << std::setw(50) << task.description 
-                      << std::setw(20) << task.deadline 
-                      << (task.completed ? "Completed" : "Pending") << std::endl;
+    for (int i = 1; i < 13; i ++){
+        if (! tasks[i].empty()){
+            for (const auto& task : tasks[i]) {
+                if (all || !task.completed) {
+                    std::cout << std::left 
+                              << std::setw(5) << task.id 
+                              << std::setw(50) << task.description 
+                              << std::setw(20) << task.deadline 
+                              << (task.completed ? "Completed" : "Pending") << std::endl;
+                }
+            }
         }
     }
 }
 
 void TaskManager::completeTask(int id) {
-    for (auto& task : tasks) {
-        if (task.id == id) {
-            task.completed = true;
-            saveTasks();
-            std::cout << "Task " << id << " marked as completed." << std::endl;
-            return;
+    for (int i = 1; i < 13; i ++){
+        if (! tasks[i].empty()){
+            for (auto& task : tasks[i]) {
+                if (task.id == id) {
+                    task.completed = true;
+                    saveTasks();
+                    std::cout << "Task " << id << " marked as completed." << std::endl;
+                    return;
+                }
+            }
+            
         }
     }
-    
     std::cout << "Task with ID " << id << " not found." << std::endl;
 }
 
 void TaskManager::deleteTask(int id) {
-    for (auto it = tasks.begin(); it != tasks.end(); ++it) {
-        if (it->id == id) {
-            tasks.erase(it);
-            saveTasks();
-            std::cout << "Task " << id << " deleted." << std::endl;
-            return;
+    for (int i = 1; i < 13; i ++){
+        if (!tasks[i].empty()){
+            for (auto it = tasks[i].begin(); it != tasks[i].end(); ++it) {
+                if (it->id == id) {
+                    tasks[i].erase(it);
+                    saveTasks();
+                    std::cout << "Task " << id << " deleted." << std::endl;
+                    return;
+                }
+            }
+            
         }
     }
-    
     std::cout << "Task with ID " << id << " not found." << std::endl;
 }
 
