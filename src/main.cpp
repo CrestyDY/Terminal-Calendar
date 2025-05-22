@@ -94,8 +94,13 @@ void exportToICSFile(const std::string& description, const std::string& deadline
     file << "END:VCALENDAR\n";
 
     file.close();
-    system("xdg-open task.ics");
-
+    #ifdef _WIN32
+        system("start task.ics"); 
+    #elif __APPLE__
+        system("open task.ics");
+    #else
+        system("xdg-open task.ics"); 
+    #endif
 }
 
 void processCommand(TaskManager& manager, const std::string& command) {
