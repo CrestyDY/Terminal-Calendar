@@ -6,11 +6,33 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <nlohmann/json.hpp>
 
-int TaskManager::CELL_HEIGHT = 10;
-int TaskManager::CELL_WIDTH = 28;
+using json = nlohmann::json;
+
+
+int TaskManager::CELL_WIDTH;
+int TaskManager::CELL_HEIGHT;
+json TaskManager::configFile;
+
 TaskManager::TaskManager(const std::string& file) : filename(file), nextId(1) {
+    loadConfigs();
     loadTasks();
+}
+
+void TaskManager::loadConfigs(){
+    std::ifstream file("config.json"); 
+    if (!file){
+        std::cerr << "Could not open the config file" << std::endl;
+        return ;
+    }
+    file >> TaskManager::configFile;
+    try {
+        this->CELL_WIDTH = configFile.value("CELL_WIDTH", 28);
+        this->CELL_HEIGHT = configFile.value("CELL_HEIGHT", 10);
+    } catch (const json::exception& e) {
+        std::cerr << "Error parsing config.json: " << e.what() << std::endl;
+    }
 }
 
 void TaskManager::loadTasks() {
@@ -217,11 +239,41 @@ int TaskManager::getCalendarCellHeight(){
 }
 
 void TaskManager::setCalendarCellWidth(int newWidth){
-    this->CELL_WIDTH = newWidth;
+    try {
+        std::ifstream file("config.json");
+        if (!file){
+            std::cerr << "Could not open the config file" << std::endl;
+        }
+        file >> TaskManager::configFile;
+        TaskManager::configFile["CELL_WIDTH"] = newWidth;
+        std::ofstream outFile("config.json");
+        if (outFile.is_open()) {
+            outFile << TaskManager::configFile.dump(4);
+            outFile.close();
+        }
+        this->CELL_WIDTH = newWidth;
+    } catch (const json::exception& e) {
+        std::cerr << "Error parsing config.json: " << e.what() << std::endl;
+    }
 }
 
 void TaskManager::setCalendarCellHeight(int newHeight){
-    this->CELL_HEIGHT = newHeight;
+    try {
+        std::ifstream file("config.json");
+        if (!file){
+            std::cerr << "Could not open the config file" << std::endl;
+        }
+        file >> TaskManager::configFile;
+        TaskManager::configFile["CELL_HEIGHT"] = newHeight;
+        std::ofstream outFile("config.json");
+        if (outFile.is_open()) {
+            outFile << TaskManager::configFile.dump(4);
+            outFile.close();
+        }
+        this->CELL_HEIGHT = newHeight;
+    } catch (const json::exception& e) {
+        std::cerr << "Error parsing config.json: " << e.what() << std::endl;
+    }
 }
 
 void TaskManager::displayCalendar(int month) {

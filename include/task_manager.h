@@ -9,6 +9,9 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 struct Task {
     int id;
@@ -24,15 +27,15 @@ private:
     int nextId;
     static int CELL_WIDTH;
     static int CELL_HEIGHT;
-    
+    static json configFile;
     void loadTasks();
     void saveTasks();
+    void loadConfigs();
     std::string getCurrentDateTime();
     bool isValidDateTime(const std::string& dateTime);
     
 public:
     TaskManager(const std::string& file);
-    
     void addTask(const std::string& description, const std::string& deadline);
     void listTasks(bool all = true);
     void completeTask(int id);
