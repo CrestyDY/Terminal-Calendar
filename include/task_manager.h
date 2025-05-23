@@ -27,6 +27,7 @@ private:
     int nextId;
     static int CELL_WIDTH;
     static int CELL_HEIGHT;
+    static int ICS_VALUE;
     static json configFile;
     void loadTasks();
     void saveTasks();
@@ -41,11 +42,14 @@ public:
     void completeTask(int id);
     void deleteTask(int id);
     void clearTasks();
+    void printTasks();
     void help();
     int getCalendarCellWidth();
     int getCalendarCellHeight();
+    int getICSVal();
     void setCalendarCellWidth(int newWidth);
     void setCalendarCellHeight(int newHeight);
+    void toggleICS();
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);
 };

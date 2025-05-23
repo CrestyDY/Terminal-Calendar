@@ -6,6 +6,9 @@
 #include <iomanip>
 #include <map>
 #include <algorithm>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 using namespace std;
 
@@ -55,7 +58,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void exportToICSFile(const std::string& description, const std::string& deadline) {
+void exportToICSFile(const std::string& description, const std::string& deadline, TaskManager& manager) {
     std::ofstream file("task.ics");
     if (!file) {
         std::cerr << "Error: Could not create task.ics file." << std::endl;
@@ -92,15 +95,18 @@ void exportToICSFile(const std::string& description, const std::string& deadline
     file << "TRANSP:OPAQUE\n";
     file << "END:VEVENT\n";
     file << "END:VCALENDAR\n";
-
     file.close();
-    #ifdef _WIN32
-        system("start task.ics"); 
-    #elif __APPLE__
-        system("open task.ics");
-    #else
-        system("xdg-open task.ics"); 
-    #endif
+
+    int icsVal = manager.getICSVal();
+    if (icsVal == 1){
+        #ifdef _WIN32
+            system("start task.ics"); 
+        #elif __APPLE__
+            system("open task.ics");
+        #else
+            system("xdg-open task.ics"); 
+        #endif
+    }
 }
 
 void processCommand(TaskManager& manager, const std::string& command) {
@@ -138,9 +144,10 @@ void processCommand(TaskManager& manager, const std::string& command) {
                 }
             }
             int month = (deadline[5] - '0')*10 + (deadline[6] - '0');
+            std::cout << "Month Number is: " << month << endl;
             manager.addTask(description, deadline);
             if (!deadline.empty()) {
-                exportToICSFile(description, deadline);
+                exportToICSFile(description, deadline, manager);
             }
         } else {
             std::cout << "Error: Task description cannot be empty." << std::endl;
@@ -222,7 +229,16 @@ void processCommand(TaskManager& manager, const std::string& command) {
     } else if (cmd == "p") {
         monthNumber --;
         manager.displayCalendar(monthNumber);
-    }else {
+    } else if (cmd == "t"){
+        manager.toggleICS();
+        int val = manager.getICSVal();
+        if (val == 0){
+            std::cout << "Terminal Calendar has successfully been configured to not open your calendar app upon adding a new task!" << std::endl;
+        }
+        else if(val == 1){
+            std::cout << "Terminal Calendar has successfully been configured to open your calendar app upon adding a new task!" << std::endl;
+        }
+    } else {
         std::cout << "Unknown command. Type 'h' for available commands." << std::endl;
     }
 }

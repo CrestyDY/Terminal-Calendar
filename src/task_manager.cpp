@@ -13,11 +13,13 @@ using json = nlohmann::json;
 
 int TaskManager::CELL_WIDTH;
 int TaskManager::CELL_HEIGHT;
+int TaskManager::ICS_VALUE;
 json TaskManager::configFile;
 
 TaskManager::TaskManager(const std::string& file) : filename(file), nextId(1) {
     loadConfigs();
     loadTasks();
+    printTasks();
 }
 
 void TaskManager::loadConfigs(){
@@ -30,11 +32,20 @@ void TaskManager::loadConfigs(){
     try {
         this->CELL_WIDTH = configFile.value("CELL_WIDTH", 28);
         this->CELL_HEIGHT = configFile.value("CELL_HEIGHT", 10);
+        this->ICS_VALUE = configFile.value("ICS_VALUE", 1);
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
     }
 }
-
+void TaskManager::printTasks(){
+    for (int i = 0; i < 12; i ++){
+        std::vector<Task> monthTasks = tasks[i+1];
+        std::cout << "Tasks for month: " << i + 1 << std::endl;
+        for (int j = 0; j < static_cast<int>(monthTasks.size()); j ++){
+            std::cout << "ID: " << monthTasks[j].id << " Deadline: " << monthTasks[j].deadline << " Description: " << monthTasks[j].description << " Completed: " << monthTasks[j].completed << std::endl;
+        }
+    }
+}
 void TaskManager::loadTasks() {
     std::ifstream inFile(filename);
     if (!inFile) {
@@ -224,10 +235,10 @@ void TaskManager::help() {
     std::cout << "  n                                 - Display calendar for next month" << std::endl;
     std::cout << "  p                                 - Display calendar for previous month" << std::endl;
     std::cout << "  dc <Month name or number (1-12)>  - Display calendar for specified month" << std::endl;
-    std::cout << std::endl << "Task Manager - Appearance Commands:" << std::endl << std::endl;
+    std::cout << std::endl << "Task Manager - User-Specific Commands:" << std::endl << std::endl;
     std::cout << "  sh <New cell height (5-10)>       - Set a new height for calendar cells" << std::endl;
     std::cout << "  sw <New cell width (10-40)>       - Set a new width for calendar cells" << std::endl;
-
+    std::cout << "  t                                 - Toggle whether your calendar app is opened upon adding a new task" << std::endl;
 }
 
 int TaskManager::getCalendarCellWidth(){
@@ -236,6 +247,10 @@ int TaskManager::getCalendarCellWidth(){
 
 int TaskManager::getCalendarCellHeight(){
     return TaskManager::CELL_HEIGHT;
+}
+
+int TaskManager::getICSVal(){
+    return TaskManager::ICS_VALUE;
 }
 
 void TaskManager::setCalendarCellWidth(int newWidth){
@@ -271,6 +286,32 @@ void TaskManager::setCalendarCellHeight(int newHeight){
             outFile.close();
         }
         this->CELL_HEIGHT = newHeight;
+    } catch (const json::exception& e) {
+        std::cerr << "Error parsing config.json: " << e.what() << std::endl;
+    }
+}
+void TaskManager::toggleICS(){
+    try {
+        std::ifstream file("config.json");
+        if (!file){
+            std::cerr << "Could not open the config file" << std::endl;
+        }
+        file >> TaskManager::configFile;
+        int newVal;
+        if (TaskManager::configFile["ICS_VALUE"] == 1){
+            newVal = 0;
+            TaskManager::configFile["ICS_VALUE"] = newVal;
+        }
+        else{
+            newVal = 1;
+            TaskManager::configFile["ICS_VALUE"] = newVal;
+        }
+        std::ofstream outFile("config.json");
+        if (outFile.is_open()) {
+            outFile << TaskManager::configFile.dump(4);
+            outFile.close();
+        }
+        this->ICS_VALUE = newVal;
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
     }
