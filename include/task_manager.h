@@ -18,6 +18,8 @@ struct Task {
     std::string description;
     std::string deadline;           
     bool completed;
+    int month;
+    int day;
 };
 
 class TaskManager {
@@ -33,6 +35,7 @@ private:
     void saveTasks();
     void loadConfigs();
     std::string getCurrentDateTime();
+    std::string getExecutableDirectory();
     bool isValidDateTime(const std::string& dateTime);
     
 public:
@@ -44,16 +47,20 @@ public:
     void clearTasks();
     void printTasks();
     void help();
-    int getCalendarCellWidth();
-    int getCalendarCellHeight();
-    int getICSVal();
+    static int getCalendarCellWidth();
+    static int getCalendarCellHeight();
+    static int getICSVal();
     std::vector<Task> getMonthTask(int month);
-    int getDayOfTask(Task task);
+    int getMonthOfTask(std::string& deadline);
+    int getDayOfTask(std::string& deadline);
     void setCalendarCellWidth(int newWidth);
     void setCalendarCellHeight(int newHeight);
     void toggleICS();
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);
+    void sortByID(std::vector<int>& arr);
+    void sortByDeadlineAscending(std::vector<int>& arr);
+    void sortByDeadlineDescending(std::vector<int>& arr);
 };
 
 #endif 

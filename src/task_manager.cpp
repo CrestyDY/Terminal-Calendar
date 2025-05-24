@@ -57,9 +57,9 @@ void TaskManager::loadConfigs(){
     }
     file >> TaskManager::configFile;
     try {
-        this->CELL_WIDTH = configFile.value("CELL_WIDTH", 28);
-        this->CELL_HEIGHT = configFile.value("CELL_HEIGHT", 10);
-        this->ICS_VALUE = configFile.value("ICS_VALUE", 1);
+        TaskManager::CELL_WIDTH = configFile.value("CELL_WIDTH", 28);
+        TaskManager::CELL_HEIGHT = configFile.value("CELL_HEIGHT", 10);
+        TaskManager::ICS_VALUE = configFile.value("ICS_VALUE", 1);
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
     }
@@ -69,7 +69,7 @@ void TaskManager::printTasks(){
         std::vector<Task> monthTasks = tasks[i+1];
         std::cout << "Tasks for month: " << i + 1 << std::endl;
         for (int j = 0; j < static_cast<int>(monthTasks.size()); j ++){
-            std::cout << "ID: " << monthTasks[j].id << " Deadline: " << monthTasks[j].deadline << " Description: " << monthTasks[j].description << " Completed: " << monthTasks[j].completed << std::endl;
+            std::cout << "ID: " << monthTasks[j].id << " Deadline: " << monthTasks[j].deadline <<  " Month: " << monthTasks[j].month  << " Day: " << monthTasks[j].day <<  " Description: " << monthTasks[j].description << " Completed: " << monthTasks[j].completed << std::endl;
         }
     }
 }
@@ -93,12 +93,12 @@ void TaskManager::loadTasks() {
         
         std::getline(iss, task.description, '|');
         std::getline(iss, task.deadline, '|');
-        int month = (task.deadline[5]-'0')*10 + (task.deadline[6]-'0');
-        
+        int month = getMonthOfTask(task.deadline);       
         int completed;
         iss >> completed;
         task.completed = completed == 1;
-        
+        task.day = getDayOfTask(task.deadline);
+        task.month = month;
         tasks[month].push_back(task);
         
         if (task.id >= nextId) {
@@ -170,11 +170,13 @@ void TaskManager::addTask(const std::string& description, const std::string& dea
     } else {
         task.deadline = deadline;
     }
-    int month = (task.deadline[5]-'0')*10 + (task.deadline[6]-'0');
-    
+    int month = getMonthOfTask(task.deadline);
+    int day = getDayOfTask(task.deadline);
+    task.month = month;
+    task.day = day;
     task.completed = false;
     
-    tasks[month].push_back(task);
+    tasks[task.month].push_back(task);
     saveTasks();
     
     std::cout << "Task added with ID " << task.id << std::endl;
@@ -284,26 +286,31 @@ std::vector<Task> TaskManager::getMonthTask(int month){
     return tasks[month];
 }
 
-int TaskManager::getDayOfTask(Task task){
-    std::string deadline = task.deadline;
+int TaskManager::getDayOfTask(std::string& deadline){
     int day = (deadline[8] - '0')*10 + (deadline[9] - '0');
     return day;
 }
 
+int TaskManager::getMonthOfTask(std::string& deadline){
+    int month = (deadline[5] - '0')*10 + (deadline[6] - '0');
+    return month;
+}
+
 void TaskManager::setCalendarCellWidth(int newWidth){
     try {
-        std::ifstream file("./config.json");
+        std::string executableDirectory = getExecutableDirectory();
+        std::ifstream file(executableDirectory + "/config.json");
         if (!file){
             std::cerr << "Could not open the config file" << std::endl;
         }
         file >> TaskManager::configFile;
         TaskManager::configFile["CELL_WIDTH"] = newWidth;
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
         }
-        this->CELL_WIDTH = newWidth;
+        TaskManager::CELL_WIDTH = newWidth;
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
     }
@@ -311,18 +318,19 @@ void TaskManager::setCalendarCellWidth(int newWidth){
 
 void TaskManager::setCalendarCellHeight(int newHeight){
     try {
-        std::ifstream file("./config.json");
+        std::string executableDirectory = getExecutableDirectory();
+        std::ifstream file(executableDirectory + "/config.json");
         if (!file){
             std::cerr << "Could not open the config file" << std::endl;
         }
         file >> TaskManager::configFile;
         TaskManager::configFile["CELL_HEIGHT"] = newHeight;
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
         }
-        this->CELL_HEIGHT = newHeight;
+        TaskManager::CELL_HEIGHT = newHeight;
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
     }
@@ -330,7 +338,8 @@ void TaskManager::setCalendarCellHeight(int newHeight){
 
 void TaskManager::toggleICS(){
     try {
-        std::ifstream file("./config.json");
+        std::string executableDirectory = getExecutableDirectory();
+        std::ifstream file(executableDirectory + "/config.json");
         if (!file){
             std::cerr << "Could not open the config file" << std::endl;
         }
@@ -349,7 +358,7 @@ void TaskManager::toggleICS(){
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
         }
-        this->ICS_VALUE = newVal;
+        TaskManager::ICS_VALUE = newVal;
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
     }
@@ -383,22 +392,22 @@ void TaskManager::displayCalendar(int month) {
         daysInMonth[1] = 29;
     }
     std::cout << "\n";
-    for (int i = 0; i < static_cast<int>((this->getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
+    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
         std::cout << " ";
     }
     std::cout << monthNames[month - 1] << " " << year;
-    for (int i = 0; i < static_cast<int>((this->getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
+    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
         std::cout << " ";
     }
     std::cout << std::endl;
-    for (int i = 0; i < this->getCalendarCellWidth()*7; i ++){
+    for (int i = 0; i < TaskManager::getCalendarCellWidth()*7; i ++){
         std::cout << "*";
     }
     std::cout << "*" << std::endl << " ";
     std::string weekDaysAbr[] = {"Su", "Mo", "Tu", "We", "Th", "Fr"};
     for (int i = 0; i < 6; i ++){
         std::cout << weekDaysAbr[i];
-        for (int j = 0; j < this->getCalendarCellWidth() - 2; j ++){
+        for (int j = 0; j < TaskManager::getCalendarCellWidth() - 2; j ++){
             std::cout << " ";
         }
     }
@@ -421,7 +430,7 @@ void TaskManager::displayCalendar(int month) {
         }
         std::cout << "*";
         for (int day = 0; day < 7; ++day) {
-            std::cout << std::string(this->getCalendarCellWidth() - 1, '*');
+            std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, '*');
             if (day < 6) std::cout << "*";
         }
         std::cout << "*";
@@ -434,16 +443,16 @@ void TaskManager::displayCalendar(int month) {
             std::cout << "*";
             if (dayNumber != 0) {
                 std::cout << " " << std::setw(2) << dayNumber;
-                for (int i = 0; i < this->getCalendarCellWidth() - 4; i ++){
+                for (int i = 0; i < TaskManager::getCalendarCellWidth() - 4; i ++){
                     std::cout << " ";
                 }
             } else {
-                std::cout << std::string(this->getCalendarCellWidth() - 1, ' ');
+                std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
             }
         }
         std::cout << "*\n";
 
-        for (int row = 0; row < this->getCalendarCellHeight() - 3; ++row) {
+        for (int row = 0; row < TaskManager::getCalendarCellHeight() - 3; ++row) {
             for (int day = 0; day < 7; ++day) {
                 std::vector<Task> events = tasks[month];
                 std::vector<Task> eventsForTheDay;
@@ -452,7 +461,7 @@ void TaskManager::displayCalendar(int month) {
                     int dayNumber = calendarGrid[idx];
                     if (!events.empty()){
                         for (int i = 0; i < static_cast<int>(events.size()); i ++){
-                            if (getDayOfTask(events[i]) == dayNumber){
+                            if (events[i].day == dayNumber){
                                 eventsForTheDay.push_back(events[i]);
                             }
                         }
@@ -460,9 +469,9 @@ void TaskManager::displayCalendar(int month) {
                 }
                 int numberOfEvents = static_cast<int>(eventsForTheDay.size());
                 if (numberOfEvents > 0){
-                    std::cout << "* Events: " << numberOfEvents << std::string(this->getCalendarCellWidth() - 10 - std::to_string(numberOfEvents).length(), ' '); 
+                    std::cout << "*📌 Events: " << numberOfEvents << std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '); 
                 } else {
-                    std::cout << "*" << std::string(this->getCalendarCellWidth() - 1, ' ');
+                    std::cout << "*" << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
                 }
             }
             std::cout << "*\n";
@@ -471,7 +480,7 @@ void TaskManager::displayCalendar(int month) {
         if ((week == 4 && !hasFifthWeek) || (week == 5 && hasFifthWeek)) {
             std::cout << "*";
             for (int day = 0; day < 7; ++day) {
-                std::cout << std::string(this->getCalendarCellWidth() - 1, '*');
+                std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, '*');
                 if (day < 6) std::cout << "*";
             }
             std::cout << "*\n";
@@ -519,22 +528,22 @@ void TaskManager::displayCalendar(const std::string& monthName) {
         daysInMonth[1] = 29;
     }
     std::cout << "\n";
-    for (int i = 0; i < static_cast<int>((this->getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
+    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
         std::cout << " ";
     }
     std::cout << monthNames[month - 1] << " " << year;
-    for (int i = 0; i < static_cast<int>((this->getCalendarCellWidth()* 7 - monthNames[month - 1].length() - 5) / 2); i++) {
+    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth()* 7 - monthNames[month - 1].length() - 5) / 2); i++) {
         std::cout << " ";
     }
     std::cout << std::endl;
-    for (int i = 0; i < this->getCalendarCellWidth()*7; i ++){
+    for (int i = 0; i < TaskManager::getCalendarCellWidth()*7; i ++){
         std::cout << "*";
     }
     std::cout << "*" << std::endl << " ";
     std::string weekDaysAbr[] = {"Su", "Mo", "Tu", "We", "Th", "Fr"};
     for (int i = 0; i < 6; i ++){
         std::cout << weekDaysAbr[i];
-        for (int j = 0; j < this->getCalendarCellWidth() - 2; j ++){
+        for (int j = 0; j < TaskManager::getCalendarCellWidth() - 2; j ++){
             std::cout << " ";
         }
     }
@@ -557,7 +566,7 @@ void TaskManager::displayCalendar(const std::string& monthName) {
         }
         std::cout << "*";
         for (int day = 0; day < 7; ++day) {
-            std::cout << std::string(this->getCalendarCellWidth() - 1, '*');
+            std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, '*');
             if (day < 6) std::cout << "*";
         }
         std::cout << "*";
@@ -570,16 +579,16 @@ void TaskManager::displayCalendar(const std::string& monthName) {
             std::cout << "*";
             if (dayNumber != 0) {
                 std::cout << " " << std::setw(2) << dayNumber;
-                for (int i = 0; i < this->getCalendarCellWidth() - 4; i ++){
+                for (int i = 0; i < TaskManager::getCalendarCellWidth() - 4; i ++){
                     std::cout << " ";
                 }
             } else {
-                std::cout << std::string(this->getCalendarCellWidth() - 1, ' ');
+                std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
             }
         }
         std::cout << "*\n";
 
-        for (int row = 0; row < this->getCalendarCellHeight() - 3; ++row) {
+        for (int row = 0; row < TaskManager::getCalendarCellHeight() - 3; ++row) {
             for (int day = 0; day < 7; ++day) {
                 std::vector<Task> events = tasks[month];
                 std::vector<Task> eventsForTheDay;
@@ -588,7 +597,7 @@ void TaskManager::displayCalendar(const std::string& monthName) {
                     int dayNumber = calendarGrid[idx];
                     if (!events.empty()){
                         for (int i = 0; i < static_cast<int>(events.size()); i ++){
-                            if (getDayOfTask(events[i]) == dayNumber){
+                            if (events[i].day == dayNumber){
                                 eventsForTheDay.push_back(events[i]);
                             }
                         }
@@ -596,9 +605,9 @@ void TaskManager::displayCalendar(const std::string& monthName) {
                 }
                 int numberOfEvents = static_cast<int>(eventsForTheDay.size());
                 if (numberOfEvents > 0){
-                    std::cout << "* Events: " << numberOfEvents << std::string(this->getCalendarCellWidth() - 10 - std::to_string(numberOfEvents).length(), ' '); 
+                    std::cout << "* Events: " << numberOfEvents << std::string(TaskManager::getCalendarCellWidth() - 10 - std::to_string(numberOfEvents).length(), ' '); 
                 } else {
-                    std::cout << "*" << std::string(this->getCalendarCellWidth() - 1, ' ');
+                    std::cout << "*" << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
                 }
             }
             std::cout << "*\n";
@@ -607,7 +616,7 @@ void TaskManager::displayCalendar(const std::string& monthName) {
         if ((week == 4 && !hasFifthWeek) || (week == 5 && hasFifthWeek)) {
             std::cout << "*";
             for (int day = 0; day < 7; ++day) {
-                std::cout << std::string(this->getCalendarCellWidth() - 1, '*');
+                std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, '*');
                 if (day < 6) std::cout << "*";
             }
             std::cout << "*\n";
