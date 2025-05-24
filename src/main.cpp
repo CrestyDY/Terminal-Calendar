@@ -7,19 +7,47 @@
 #include <map>
 #include <algorithm>
 #include <nlohmann/json.hpp>
+#include <filesystem>
 
 using json = nlohmann::json;
-
+namespace fs = std::filesystem;
 using namespace std;
 
 void processCommand(TaskManager& manager, const std::string& command);
+
 
 time_t now = time(0);
 tm *ltm = localtime(&now);
 int monthNumber = 1 + ltm->tm_mon;
 
+std::string getExecutableDirectory(){
+    #ifdef _WIN32
+        char buffer[MAX_PATH];
+        GetModuleFileNameA(NULL, buffer, MAX_PATH);
+        return fs::path(buffer).parent_path().string();
+    #elif __linux__
+        try {
+            return fs::canonical("/proc/self/exe").parent_path().string();
+        } catch (const std::exception& e) {
+            std::cerr << "Could not determine executable directory: " << e.what() << std::endl;
+            return ".";
+        }
+    #elif __APPLE__
+        char buffer[PATH_MAX];
+        uint32_t size = sizeof(buffer);
+        if (_NSGetExecutablePath(buffer, &size) == 0) {
+            return fs::canonical(fs::path(buffer)).parent_path().string();
+        }
+        std::cerr << "Could not determine executable directory" << std::endl;
+        return ".";
+    #else
+        return ".";
+    #endif
+}
+
 int main(int argc, char* argv[]) {
-    std::string dataFile = "tasks.dat";
+    std::string executableDirectory = getExecutableDirectory();
+    std::string dataFile = executableDirectory + "/tasks.dat";
     
     if (argc > 1 && std::strcmp(argv[1], "--file") == 0 && argc > 2) {
         dataFile = argv[2];
@@ -59,7 +87,7 @@ int main(int argc, char* argv[]) {
 }
 
 void exportToICSFile(const std::string& description, const std::string& deadline, TaskManager& manager) {
-    std::ofstream file("task.ics");
+    std::ofstream file("./task.ics");
     if (!file) {
         std::cerr << "Error: Could not create task.ics file." << std::endl;
         return;
@@ -100,11 +128,11 @@ void exportToICSFile(const std::string& description, const std::string& deadline
     int icsVal = manager.getICSVal();
     if (icsVal == 1){
         #ifdef _WIN32
-            system("start task.ics"); 
+            system("start ./task.ics"); 
         #elif __APPLE__
-            system("open task.ics");
+            system("open ./task.ics");
         #else
-            system("xdg-open task.ics"); 
+            system("xdg-open ./task.ics"); 
         #endif
     }
 }

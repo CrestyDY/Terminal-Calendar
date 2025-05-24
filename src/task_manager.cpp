@@ -7,9 +7,10 @@
 #include <vector>
 #include <algorithm>
 #include <nlohmann/json.hpp>
+#include <filesystem>
 
 using json = nlohmann::json;
-
+namespace fs = std::filesystem;
 
 int TaskManager::CELL_WIDTH;
 int TaskManager::CELL_HEIGHT;
@@ -21,8 +22,35 @@ TaskManager::TaskManager(const std::string& file) : filename(file), nextId(1) {
     loadTasks();
 }
 
+std::string TaskManager::getExecutableDirectory(){
+    #ifdef _WIN32
+        char buffer[MAX_PATH];
+        GetModuleFileNameA(NULL, buffer, MAX_PATH);
+        return fs::path(buffer).parent_path().string();
+    #elif __linux__
+        try {
+            return fs::canonical("/proc/self/exe").parent_path().string();
+        } catch (const std::exception& e) {
+            std::cerr << "Could not determine executable directory: " << e.what() << std::endl;
+            return ".";
+        }
+    #elif __APPLE__
+        char buffer[PATH_MAX];
+        uint32_t size = sizeof(buffer);
+        if (_NSGetExecutablePath(buffer, &size) == 0) {
+            return fs::canonical(fs::path(buffer)).parent_path().string();
+        }
+        std::cerr << "Could not determine executable directory" << std::endl;
+        return ".";
+    #else
+        return ".";
+    #endif
+}
+
 void TaskManager::loadConfigs(){
-    std::ifstream file("config.json"); 
+    std::string executableDirectory = getExecutableDirectory();
+    std::string configPath = executableDirectory + "/config.json";
+    std::ifstream file(configPath); 
     if (!file){
         std::cerr << "Could not open the config file" << std::endl;
         return ;
@@ -264,13 +292,13 @@ int TaskManager::getDayOfTask(Task task){
 
 void TaskManager::setCalendarCellWidth(int newWidth){
     try {
-        std::ifstream file("config.json");
+        std::ifstream file("./config.json");
         if (!file){
             std::cerr << "Could not open the config file" << std::endl;
         }
         file >> TaskManager::configFile;
         TaskManager::configFile["CELL_WIDTH"] = newWidth;
-        std::ofstream outFile("config.json");
+        std::ofstream outFile("./config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -283,13 +311,13 @@ void TaskManager::setCalendarCellWidth(int newWidth){
 
 void TaskManager::setCalendarCellHeight(int newHeight){
     try {
-        std::ifstream file("config.json");
+        std::ifstream file("./config.json");
         if (!file){
             std::cerr << "Could not open the config file" << std::endl;
         }
         file >> TaskManager::configFile;
         TaskManager::configFile["CELL_HEIGHT"] = newHeight;
-        std::ofstream outFile("config.json");
+        std::ofstream outFile("./config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -302,7 +330,7 @@ void TaskManager::setCalendarCellHeight(int newHeight){
 
 void TaskManager::toggleICS(){
     try {
-        std::ifstream file("config.json");
+        std::ifstream file("./config.json");
         if (!file){
             std::cerr << "Could not open the config file" << std::endl;
         }
@@ -316,7 +344,7 @@ void TaskManager::toggleICS(){
             newVal = 1;
             TaskManager::configFile["ICS_VALUE"] = newVal;
         }
-        std::ofstream outFile("config.json");
+        std::ofstream outFile("./config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
