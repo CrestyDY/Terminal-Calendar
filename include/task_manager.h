@@ -25,6 +25,7 @@ struct Task {
 class TaskManager {
 private:
     std::map<int, std::vector<Task>> tasks;
+    std::vector<Task> taskList;
     std::string filename;
     int nextId;
     static int CELL_WIDTH;
@@ -58,9 +59,9 @@ public:
     void toggleICS();
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);
-    void sortByID(std::vector<int>& arr);
-    void sortByDeadlineAscending(std::vector<int>& arr);
-    void sortByDeadlineDescending(std::vector<int>& arr);
+    void sortByID();
+    void sortByDeadlineAscending();
+    void sortByDeadlineDescending();
 };
 
 #endif 

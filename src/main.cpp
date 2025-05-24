@@ -264,6 +264,35 @@ void processCommand(TaskManager& manager, const std::string& command) {
         else if(val == 1){
             std::cout << "Terminal Calendar has successfully been configured to open your calendar app upon adding a new task!" << std::endl;
         }
+    } else if (cmd == "sort"){
+        cout << "   Select how you want events to be sorted (1-3): " << "\n   1. By ID" << "\n   2. By nearest" << "\n   3. By furthest" << "\n> " ;
+        int choice;
+        std::string input;
+        std::getline(std::cin, input);  
+        std::istringstream inputStream(input);
+
+        if (inputStream >> choice) {
+            switch (choice){
+                case 1:
+                    manager.sortByID();
+                    std::cout << "Your events have successfully been sorted by their ID !" << std::endl;
+                    break;
+                case 2:
+                    manager.sortByDeadlineAscending();
+                    std::cout << "Your events have successfully been sorted by the nearest due date!" << std::endl;
+                    break;
+                case 3:
+                    manager.sortByDeadlineDescending();
+                    std::cout << "Your events have successfully been sorted by the furthest due date !" << std::endl;
+                    break;
+                default:
+                    std::cout << "Unknown option. Please enter a valid choice (1-3)" << std::endl;
+                    break;
+            }
+        }
+        else{
+            std::cout << "Invalid input. Please enter a valid choice (1-3)" << endl;
+        }
     } else {
         std::cout << "Unknown command. Type 'h' for available commands." << std::endl;
     }

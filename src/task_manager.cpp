@@ -20,6 +20,7 @@ json TaskManager::configFile;
 TaskManager::TaskManager(const std::string& file) : filename(file), nextId(1) {
     loadConfigs();
     loadTasks();
+    printTasks();
 }
 
 std::string TaskManager::getExecutableDirectory(){
@@ -65,12 +66,9 @@ void TaskManager::loadConfigs(){
     }
 }
 void TaskManager::printTasks(){
-    for (int i = 0; i < 12; i ++){
-        std::vector<Task> monthTasks = tasks[i+1];
-        std::cout << "Tasks for month: " << i + 1 << std::endl;
-        for (int j = 0; j < static_cast<int>(monthTasks.size()); j ++){
-            std::cout << "ID: " << monthTasks[j].id << " Deadline: " << monthTasks[j].deadline <<  " Month: " << monthTasks[j].month  << " Day: " << monthTasks[j].day <<  " Description: " << monthTasks[j].description << " Completed: " << monthTasks[j].completed << std::endl;
-        }
+    std::cout << "PRINTING TASK LIST" << std::endl;
+    for (int j = 0; j < static_cast<int>(taskList.size()); j ++){
+        std::cout << "ID: " << taskList[j].id << " Deadline: " << taskList[j].deadline <<  " Month: " << taskList[j].month  << " Day: " << taskList[j].day <<  " Description: " << taskList[j].description << " Completed: " << taskList[j].completed << std::endl;
     }
 }
 void TaskManager::loadTasks() {
@@ -100,6 +98,7 @@ void TaskManager::loadTasks() {
         task.day = getDayOfTask(task.deadline);
         task.month = month;
         tasks[month].push_back(task);
+        taskList.push_back(task);
         
         if (task.id >= nextId) {
             nextId = task.id + 1;
@@ -177,13 +176,14 @@ void TaskManager::addTask(const std::string& description, const std::string& dea
     task.completed = false;
     
     tasks[task.month].push_back(task);
+    taskList.push_back(task);
     saveTasks();
     
     std::cout << "Task added with ID " << task.id << std::endl;
 }
 
 void TaskManager::listTasks(bool all) {
-    if (tasks.empty()) {
+    if (taskList.empty()) {
         std::cout << "No tasks found." << std::endl;
         return;
     }
@@ -195,17 +195,13 @@ void TaskManager::listTasks(bool all) {
               << "Status" << std::endl;
     std::cout << std::string(80, '-') << std::endl;
     
-    for (int i = 1; i < 13; i ++){
-        if (! tasks[i].empty()){
-            for (const auto& task : tasks[i]) {
-                if (all || !task.completed) {
-                    std::cout << std::left 
-                              << std::setw(5) << task.id 
-                              << std::setw(50) << task.description 
-                              << std::setw(20) << task.deadline 
-                              << (task.completed ? "Completed" : "Pending") << std::endl;
-                }
-            }
+    for (const auto& task : taskList) {
+        if (all || !task.completed) {
+            std::cout << std::left 
+                      << std::setw(5) << task.id 
+                      << std::setw(50) << task.description 
+                      << std::setw(20) << task.deadline 
+                      << (task.completed ? "Completed" : "Pending") << std::endl;
         }
     }
 }
@@ -221,7 +217,14 @@ void TaskManager::completeTask(int id) {
                     return;
                 }
             }
-            
+        }
+    }
+    for (int i = 0; i < static_cast<int>(taskList.size()); i ++){
+        if (taskList[i].id == id){
+                taskList[i].completed = true;
+                saveTasks();
+                std::cout << "Task " << id << " marked as completed." << std::endl;
+                return;
         }
     }
     std::cout << "Task with ID " << id << " not found." << std::endl;
@@ -238,7 +241,14 @@ void TaskManager::deleteTask(int id) {
                     return;
                 }
             }
-            
+        }
+    }
+    for (auto it = taskList.begin(); it != taskList.end(); ++ it){
+        if (it->id == id){
+                taskList.erase(it);
+                saveTasks();
+                std::cout << "Task " << id << " deleted" << std::endl;
+                return;
         }
     }
     std::cout << "Task with ID " << id << " not found." << std::endl;
@@ -246,6 +256,7 @@ void TaskManager::deleteTask(int id) {
 
 void TaskManager::clearTasks(){
     tasks.clear();
+    taskList.clear();
     saveTasks();
     return;
 }
@@ -268,6 +279,45 @@ void TaskManager::help() {
     std::cout << "  sh <New cell height (5-10)>       - Set a new height for calendar cells" << std::endl;
     std::cout << "  sw <New cell width (12-40)>       - Set a new width for calendar cells" << std::endl;
     std::cout << "  t                                 - Toggle whether your calendar app is opened upon adding a new task" << std::endl;
+}
+
+void TaskManager::sortByID(){
+    for (int i = 0; i < static_cast<int>(taskList.size()) - 1; ++i) {
+        for (int j = 0; j < static_cast<int>(taskList.size()) - i - 1; ++j) {
+            if (taskList[j].id > taskList[j + 1].id) {
+                std::swap(taskList[j], taskList[j + 1]);
+            }
+        }
+    }
+}
+
+void TaskManager::sortByDeadlineAscending(){
+    for (int i = 0; i < static_cast<int>(taskList.size()) - 1; ++i) {
+        for (int j = 0; j < static_cast<int>(taskList.size()) - i - 1; ++j) {
+            if (taskList[j].month > taskList[j + 1].month) {
+                std::swap(taskList[j], taskList[j + 1]);
+            }
+            else if (taskList[j].month == taskList[j + 1].month){
+                if (taskList[j].day > taskList[j + 1].day){
+                    std::swap(taskList[j], taskList[j+1]);
+                }
+            }
+        }
+    }
+}
+void TaskManager::sortByDeadlineDescending(){
+    for (int i = 0; i < static_cast<int>(taskList.size()) - 1; ++i) {
+        for (int j = 0; j < static_cast<int>(taskList.size()) - i - 1; ++j) {
+            if (taskList[j].month < taskList[j + 1].month) {
+                std::swap(taskList[j], taskList[j + 1]);
+            }
+            else if (taskList[j].month == taskList[j + 1].month){
+                if (taskList[j].day < taskList[j + 1].day){
+                    std::swap(taskList[j], taskList[j+1]);
+                }
+            }
+        }
+    }
 }
 
 int TaskManager::getCalendarCellWidth(){
