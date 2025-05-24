@@ -143,8 +143,6 @@ void processCommand(TaskManager& manager, const std::string& command) {
                     }
                 }
             }
-            int month = (deadline[5] - '0')*10 + (deadline[6] - '0');
-            std::cout << "Month Number is: " << month << endl;
             manager.addTask(description, deadline);
             if (!deadline.empty()) {
                 exportToICSFile(description, deadline, manager);
@@ -193,11 +191,11 @@ void processCommand(TaskManager& manager, const std::string& command) {
     } else if (cmd == "sw") {
         int newWidth;
         if (iss >> newWidth) {
-            if (newWidth >= 10 && newWidth <= 40) {
+            if (newWidth >= 12 && newWidth <= 40) {
                 manager.setCalendarCellWidth(newWidth);
                 cout << "The cell width of the calendar has been set to: " << newWidth << "\n";
             } else {
-                std::cout << "Error: Width must be between 10 and 40.\n";
+                std::cout << "Error: Width must be between 12 and 40.\n";
             }
         } else {
             std::cout << "Error: Invalid input. Please enter a number.\n";

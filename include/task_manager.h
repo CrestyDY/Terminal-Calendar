@@ -47,6 +47,8 @@ public:
     int getCalendarCellWidth();
     int getCalendarCellHeight();
     int getICSVal();
+    std::vector<Task> getMonthTask(int month);
+    int getDayOfTask(Task task);
     void setCalendarCellWidth(int newWidth);
     void setCalendarCellHeight(int newHeight);
     void toggleICS();
