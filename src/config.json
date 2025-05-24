@@ -1,5 +1,6 @@
 {
-    "CELL_HEIGHT": 10,
-    "CELL_WIDTH": 28,
-    "ICS_VALUE": 1
+    "CELL_HEIGHT": 7,
+    "CELL_WIDTH": 25,
+    "EVENT_SORT": "DESCENDING",
+    "ICS_VALUE": 0
 }

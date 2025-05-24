@@ -177,6 +177,27 @@ void TaskManager::addTask(const std::string& description, const std::string& dea
     
     tasks[task.month].push_back(task);
     taskList.push_back(task);
+
+    std::string executableDirectory = getExecutableDirectory();
+    std::ifstream file(executableDirectory + "/config.json");
+    if (!file){
+        std::cerr << "Could not open the config file" << std::endl;
+    }
+    file >> TaskManager::configFile;
+    std::string sortMethod = TaskManager::configFile["EVENT_SORT"];
+    if (sortMethod.compare("ID") == 0){
+        sortByID();
+    }
+    else if (sortMethod.compare("ASCENDING") == 0){
+        sortByDeadlineAscending();
+    }
+    else if (sortMethod.compare("DESCENDING") == 0){
+        sortByDeadlineDescending();
+    }
+    else {
+        std::cerr << "Invalid sorting method detected in config.json. \nMethod detected: " << sortMethod << std::endl;
+    }
+
     saveTasks();
     
     std::cout << "Task added with ID " << task.id << std::endl;
@@ -289,6 +310,18 @@ void TaskManager::sortByID(){
             }
         }
     }
+    std::string executableDirectory = getExecutableDirectory();
+    std::ifstream file(executableDirectory + "/config.json");
+    if (!file){
+        std::cerr << "Could not open the config file" << std::endl;
+    }
+    file >> TaskManager::configFile;
+    TaskManager::configFile["EVENT_SORT"] = "ID";
+    std::ofstream outFile(executableDirectory + "/config.json");
+    if (outFile.is_open()) {
+        outFile << TaskManager::configFile.dump(4);
+        outFile.close();
+    }
 }
 
 void TaskManager::sortByDeadlineAscending(){
@@ -304,6 +337,18 @@ void TaskManager::sortByDeadlineAscending(){
             }
         }
     }
+    std::string executableDirectory = getExecutableDirectory();
+    std::ifstream file(executableDirectory + "/config.json");
+    if (!file){
+        std::cerr << "Could not open the config file" << std::endl;
+    }
+    file >> TaskManager::configFile;
+    TaskManager::configFile["EVENT_SORT"] = "ASCENDING";
+    std::ofstream outFile(executableDirectory + "/config.json");
+    if (outFile.is_open()) {
+        outFile << TaskManager::configFile.dump(4);
+        outFile.close();
+    }
 }
 void TaskManager::sortByDeadlineDescending(){
     for (int i = 0; i < static_cast<int>(taskList.size()) - 1; ++i) {
@@ -317,6 +362,18 @@ void TaskManager::sortByDeadlineDescending(){
                 }
             }
         }
+    }
+    std::string executableDirectory = getExecutableDirectory();
+    std::ifstream file(executableDirectory + "/config.json");
+    if (!file){
+        std::cerr << "Could not open the config file" << std::endl;
+    }
+    file >> TaskManager::configFile;
+    TaskManager::configFile["EVENT_SORT"] = "DESCENDING";
+    std::ofstream outFile(executableDirectory + "/config.json");
+    if (outFile.is_open()) {
+        outFile << TaskManager::configFile.dump(4);
+        outFile.close();
     }
 }
 
