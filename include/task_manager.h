@@ -20,6 +20,7 @@ struct Task {
     bool completed;
     int month;
     int day;
+    int year;
 };
 
 class TaskManager {
@@ -48,15 +49,19 @@ public:
     void clearTasks();
     void printTasks();
     void help();
+    // Getters 
     static int getCalendarCellWidth();
     static int getCalendarCellHeight();
     static int getICSVal();
     std::vector<Task> getMonthTask(int month);
     int getMonthOfTask(std::string& deadline);
     int getDayOfTask(std::string& deadline);
+    int getYearOfTask(std::string& deadline);
+    // Setters
     void setCalendarCellWidth(int newWidth);
     void setCalendarCellHeight(int newHeight);
     void toggleICS();
+    
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);
     void sortByID();

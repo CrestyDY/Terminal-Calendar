@@ -171,8 +171,10 @@ void TaskManager::addTask(const std::string& description, const std::string& dea
     }
     int month = getMonthOfTask(task.deadline);
     int day = getDayOfTask(task.deadline);
+    int year = getYearOfTask(task.deadline);
     task.month = month;
     task.day = day;
+    task.year = year;
     task.completed = false;
     
     tasks[task.month].push_back(task);
@@ -327,12 +329,17 @@ void TaskManager::sortByID(){
 void TaskManager::sortByDeadlineAscending(){
     for (int i = 0; i < static_cast<int>(taskList.size()) - 1; ++i) {
         for (int j = 0; j < static_cast<int>(taskList.size()) - i - 1; ++j) {
-            if (taskList[j].month > taskList[j + 1].month) {
-                std::swap(taskList[j], taskList[j + 1]);
+            if (taskList[j].year > taskList[j + 1].year){
+                std::swap(taskList[j], taskList[j+1]);
             }
-            else if (taskList[j].month == taskList[j + 1].month){
-                if (taskList[j].day > taskList[j + 1].day){
-                    std::swap(taskList[j], taskList[j+1]);
+            else if (taskList[j].year == taskList[j + 1].year){
+                if (taskList[j].month > taskList[j + 1].month) {
+                    std::swap(taskList[j], taskList[j + 1]);
+                }
+                else if (taskList[j].month == taskList[j + 1].month){
+                    if (taskList[j].day > taskList[j + 1].day){
+                        std::swap(taskList[j], taskList[j+1]);
+                    }
                 }
             }
         }
@@ -353,12 +360,17 @@ void TaskManager::sortByDeadlineAscending(){
 void TaskManager::sortByDeadlineDescending(){
     for (int i = 0; i < static_cast<int>(taskList.size()) - 1; ++i) {
         for (int j = 0; j < static_cast<int>(taskList.size()) - i - 1; ++j) {
-            if (taskList[j].month < taskList[j + 1].month) {
-                std::swap(taskList[j], taskList[j + 1]);
+            if (taskList[j].year < taskList[j + 1].year){
+                std::swap(taskList[j], taskList[j+1]);
             }
-            else if (taskList[j].month == taskList[j + 1].month){
-                if (taskList[j].day < taskList[j + 1].day){
-                    std::swap(taskList[j], taskList[j+1]);
+            else if (taskList[j].year == taskList[j + 1].year){
+                if (taskList[j].month < taskList[j + 1].month) {
+                    std::swap(taskList[j], taskList[j + 1]);
+                }
+                else if (taskList[j].month == taskList[j + 1].month){
+                    if (taskList[j].day < taskList[j + 1].day){
+                        std::swap(taskList[j], taskList[j+1]);
+                    }
                 }
             }
         }
@@ -401,6 +413,11 @@ int TaskManager::getDayOfTask(std::string& deadline){
 int TaskManager::getMonthOfTask(std::string& deadline){
     int month = (deadline[5] - '0')*10 + (deadline[6] - '0');
     return month;
+}
+
+int TaskManager::getYearOfTask(std::string& deadline){
+    int year = (deadline[0] - '0')*1000 + (deadline[1] - '0')*100 + (deadline[2] - '0')*10 + (deadline[3] - '0');
+    return year;
 }
 
 void TaskManager::setCalendarCellWidth(int newWidth){
