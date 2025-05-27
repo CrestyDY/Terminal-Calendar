@@ -385,6 +385,8 @@ void processCommand(TaskManager& manager, const std::string& command) {
         else {
             std::cout << manager.color_text("Invalid input. Please enter a valid choice (1-8)", manager.getTextColor()) << std::endl; 
         }
+    } else if (cmd == "fetch"){
+        manager.displaySummary(); 
     } else if (cmd == "scb"){
         std::string text = "***********************";
 

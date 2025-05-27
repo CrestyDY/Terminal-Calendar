@@ -19,6 +19,7 @@ int TaskManager::ICS_VALUE;
 std::string TaskManager::CALENDAR_BORDER_COLOR;
 std::string TaskManager::TEXT_COLOR;
 std::string TaskManager::EVENTS_COLOR;
+std::string TaskManager::SORT_METHOD;
 int TaskManager::CALENDAR_BORDER_BOLD;
 int TaskManager::TEXT_BOLD;
 json TaskManager::configFile;
@@ -103,6 +104,16 @@ void TaskManager::loadConfigs(){
         TaskManager::EVENTS_COLOR = configFile.value("EVENTS_COLOR", "WHITE");
         TaskManager::CALENDAR_BORDER_BOLD = configFile.value("CALENDAR_BORDER_BOLD", 0);
         TaskManager::TEXT_BOLD = configFile.value("TEXT_BOLD", 0);
+        std::string sortingMethod = configFile.value("SORTING_METHOD", "ID");
+        if (sortingMethod.compare("ID") == 0){
+            TaskManager::SORT_METHOD = "By ID";
+        }
+        else if (sortingMethod.compare("ASCENDING") == 0){
+            TaskManager::SORT_METHOD = "By closest";
+        }
+        else if (sortingMethod.compare("DESCENDING") == 0){
+            TaskManager::SORT_METHOD = "By furthest";
+        }
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
     }
@@ -235,7 +246,6 @@ void TaskManager::addTask(const std::string& description, const std::string& dea
     else {
         std::cerr << "Invalid sorting method detected in config.json. \nMethod detected: " << sortMethod << std::endl;
     }
-
     saveTasks();
     
     std::cout << color_text("Task added with ID ", TaskManager::TEXT_COLOR) << task.id << std::endl;
@@ -363,6 +373,7 @@ void TaskManager::sortByID(){
         outFile << TaskManager::configFile.dump(4);
         outFile.close();
     }
+    TaskManager::SORT_METHOD = "By ID";
 }
 
 void TaskManager::sortByDeadlineAscending(){
@@ -395,6 +406,7 @@ void TaskManager::sortByDeadlineAscending(){
         outFile << TaskManager::configFile.dump(4);
         outFile.close();
     }
+    TaskManager::SORT_METHOD = "By closest";
 }
 void TaskManager::sortByDeadlineDescending(){
     for (int i = 0; i < static_cast<int>(taskList.size()) - 1; ++i) {
@@ -426,6 +438,7 @@ void TaskManager::sortByDeadlineDescending(){
         outFile << TaskManager::configFile.dump(4);
         outFile.close();
     }
+    TaskManager::SORT_METHOD = "By furthest";
 }
 
 int TaskManager::getCalendarCellWidth(){
@@ -536,7 +549,7 @@ void TaskManager::toggleICS(){
             newVal = 1;
             TaskManager::configFile["ICS_VALUE"] = newVal;
         }
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -561,7 +574,7 @@ void TaskManager::setCalendarBorderColor(std::string color){
         }
         file >> TaskManager::configFile;
         TaskManager::configFile["CALENDAR_BORDER_COLOR"] = color;
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -586,7 +599,7 @@ void TaskManager::setTextColor(std::string color){
         }
         file >> TaskManager::configFile;
         TaskManager::configFile["TEXT_COLOR"] = color;
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -611,7 +624,7 @@ void TaskManager::setEventsColor(std::string color){
         }
         file >> TaskManager::configFile;
         TaskManager::configFile["EVENTS_COLOR"] = color;
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -639,7 +652,7 @@ void TaskManager::toggleCalendarBorderBold(){
             newVal = 1;
             TaskManager::configFile["CALENDAR_BORDER_BOLD"] = newVal;
         }
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -667,7 +680,7 @@ void TaskManager::toggleTextBold(){
             newVal = 1;
             TaskManager::configFile["TEXT_BOLD"] = newVal;
         }
-        std::ofstream outFile("./config.json");
+        std::ofstream outFile(executableDirectory + "/config.json");
         if (outFile.is_open()) {
             outFile << TaskManager::configFile.dump(4);
             outFile.close();
@@ -932,4 +945,22 @@ void TaskManager::displayCalendar(const std::string& monthName) {
             std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
         }
     }
+}
+
+void TaskManager::displaySummary(){
+    std::cout << color_text("╔════════════════════════════════════════════════════════════════════╗", TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║  ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗      ║", TaskManager::TEXT_COLOR) << "    " << color_text("Welcome to Terminal Calendar!", TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║  ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║      ║", TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║     ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║      ║", TaskManager::TEXT_COLOR) << "    " << color_text("Your current configurations: ", TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║     ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║      ║", TaskManager::TEXT_COLOR) << "    " << color_text("Grid cell width: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(TaskManager::CELL_WIDTH), TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║     ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗ ║", TaskManager::TEXT_COLOR) << "    " << color_text("Grid cell height: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(TaskManager::CELL_HEIGHT), TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║     ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝ ║", TaskManager::TEXT_COLOR) << "    " << color_text("Calendar Border Color: ", TaskManager::CALENDAR_BORDER_COLOR) << color_text(TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_COLOR) << std::endl;
+    std::cout << color_text("║                                                                    ║", TaskManager::TEXT_COLOR) << "    " << color_text("Text Color: ", TaskManager::TEXT_COLOR) << color_text(TaskManager::TEXT_COLOR, TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║  ██████╗ █████╗ ██╗     ███████╗███╗   ██╗██████╗  █████╗ ██████╗  ║", TaskManager::TEXT_COLOR) << "    " << color_text("Calendar Events Color: ", TaskManager::EVENTS_COLOR) << color_text(TaskManager::EVENTS_COLOR, TaskManager::EVENTS_COLOR) << std::endl;
+    std::cout << color_text("║ ██╔════╝██╔══██╗██║     ██╔════╝████╗  ██║██╔══██╗██╔══██╗██╔══██╗ ║", TaskManager::TEXT_COLOR) << "    " << color_text("Bold Calendar Borders: ", TaskManager::TEXT_COLOR) << color_text(TaskManager::CALENDAR_BORDER_BOLD == 1 ? ("True") : ("False"), TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║ ██║     ███████║██║     █████╗  ██╔██╗ ██║██║  ██║███████║██████╔╝ ║", TaskManager::TEXT_COLOR) << "    " << color_text("Bold Text: ", TaskManager::TEXT_COLOR) << color_text(TaskManager::TEXT_BOLD == 1 ? ("True") : ("False"), TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║ ██║     ██╔══██║██║     ██╔══╝  ██║╚██╗██║██║  ██║██╔══██║██╔══██╗ ║", TaskManager::TEXT_COLOR) << "    " << color_text("ICS Enabled: ", TaskManager::TEXT_COLOR) << color_text(TaskManager::ICS_VALUE == 1 ? ("True") : ("False"), TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║ ╚██████╗██║  ██║███████╗███████╗██║ ╚████║██████╔╝██║  ██║██║  ██║ ║", TaskManager::TEXT_COLOR) << "    " << color_text("Events Sorting Method: ", TaskManager::TEXT_COLOR) << color_text(TaskManager::SORT_METHOD, TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("║  ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝ ║", TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("╚════════════════════════════════════════════════════════════════════╝", TaskManager::TEXT_COLOR) << std::endl;
 }

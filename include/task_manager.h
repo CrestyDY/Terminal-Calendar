@@ -35,6 +35,7 @@ private:
     static std::string CALENDAR_BORDER_COLOR;
     static std::string TEXT_COLOR;
     static std::string EVENTS_COLOR;
+    static std::string SORT_METHOD;
     static int CALENDAR_BORDER_BOLD;
     static int TEXT_BOLD;
     static json configFile;
@@ -81,6 +82,7 @@ public:
     
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);
+    void displaySummary();
     void sortByID();
     void sortByDeadlineAscending();
     void sortByDeadlineDescending();
