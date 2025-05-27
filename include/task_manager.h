@@ -32,6 +32,8 @@ private:
     static int CELL_WIDTH;
     static int CELL_HEIGHT;
     static int ICS_VALUE;
+    static std::string CALENDAR_BORDER_COLOR;
+    static std::string TEXT_COLOR;
     static json configFile;
     void loadTasks();
     void saveTasks();
@@ -42,6 +44,7 @@ private:
     
 public:
     TaskManager(const std::string& file);
+    std::string color_text(const std::string& text, const std::string& color);
     void addTask(const std::string& description, const std::string& deadline);
     void listTasks(bool all = true);
     void completeTask(int id);
@@ -49,18 +52,24 @@ public:
     void clearTasks();
     void printTasks();
     void help();
+
     // Getters 
     static int getCalendarCellWidth();
     static int getCalendarCellHeight();
     static int getICSVal();
+    static std::string getCalendarBorderColor();
+    static std::string getTextColor();
     std::vector<Task> getMonthTask(int month);
     int getMonthOfTask(std::string& deadline);
     int getDayOfTask(std::string& deadline);
     int getYearOfTask(std::string& deadline);
+    
     // Setters
     void setCalendarCellWidth(int newWidth);
     void setCalendarCellHeight(int newHeight);
     void toggleICS();
+    void setCalendarBorderColor(std::string color);
+    void setTextColor(std::string color);
     
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);

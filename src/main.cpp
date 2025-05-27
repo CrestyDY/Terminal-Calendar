@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 
     TaskManager manager(dataFile);
 
-    std::cout << "Task Manager CLI (Type 'h' for commands, 'exit' to quit)" << std::endl;
+    std::cout << manager.color_text("Task Manager CLI (Type 'h' for commands, 'exit' to quit)", manager.getTextColor()) << std::endl;
 
     if ((argc > 1 && std::strcmp(argv[1], "--file") != 0) || argc > 3) {
         std::string fullCommand;
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
 
     std::string input;
     while (true) {
-        std::cout << "> ";
+        std::cout << manager.color_text("> ", manager.getTextColor());
         std::getline(std::cin, input);
 
         if (input == "exit") break;
@@ -176,7 +176,7 @@ void processCommand(TaskManager& manager, const std::string& command) {
                 exportToICSFile(description, deadline, manager);
             }
         } else {
-            std::cout << "Error: Task description cannot be empty." << std::endl;
+            std::cout << manager.color_text("Error: Task description cannot be empty.", manager.getTextColor()) << std::endl;
         }
     } else if (cmd == "ls") {
         manager.listTasks(false);
@@ -187,17 +187,17 @@ void processCommand(TaskManager& manager, const std::string& command) {
         if (iss >> id) {
             manager.completeTask(id);
         } else {
-            std::cout << "Error: Invalid task ID." << std::endl;
+            std::cout << manager.color_text("Error: Invalid task ID.", manager.getTextColor()) << std::endl; 
         }
     } else if (cmd == "dt") {
         int id;
         if (iss >> id) {
             manager.deleteTask(id);
         } else {
-            std::cout << "Error: Invalid task ID." << std::endl;
+            std::cout << manager.color_text("Error: Invalid task ID.", manager.getTextColor()) << std::endl; 
         }
     } else if (cmd == "ct") {
-        std::cout << "Clearing all tasks..." << std::endl;
+        std::cout << manager.color_text("Clearing all tasks...", manager.getTextColor()) << std::endl; 
         manager.clearTasks();
     } else if (cmd == "h") {
         manager.help();
@@ -209,24 +209,126 @@ void processCommand(TaskManager& manager, const std::string& command) {
         if (iss >> newHeight){
             if (newHeight >= 5 && newHeight <= 10){
                 manager.setCalendarCellHeight(newHeight);
-                cout << "The cell height of the calendar has been set to: " << newHeight << "\n";
+                cout << manager.color_text("The cell height of the calendar has been set to: ", manager.getTextColor()) << newHeight << "\n";
             } else {
-                std::cout << "Error: Height must be between 5 and 10.\n";
+                std::cout << manager.color_text("Error: Height must be between, manager.getTextColor()) 5 and 10.\n", manager.getTextColor()); 
             }
         } else {
-        std::cout << "Error: Invalid input.Please enter a number.\n";
+        std::cout << manager.color_text("Error: Invalid input.Please enter a number.", manager.getTextColor()) << std::endl; 
         }
     } else if (cmd == "sw") {
         int newWidth;
         if (iss >> newWidth) {
             if (newWidth >= 13 && newWidth <= 40) {
                 manager.setCalendarCellWidth(newWidth);
-                cout << "The cell width of the calendar has been set to: " << newWidth << "\n";
+                cout << manager.color_text("The cell width of the calendar has been set to: ", manager.getTextColor()) << newWidth << "\n";
             } else {
-                std::cout << "Error: Width must be between 13 and 40.\n";
+                std::cout << manager.color_text("Error: Width must be between 13 and 40.", manager.getTextColor()) << std::endl; 
             }
         } else {
-            std::cout << "Error: Invalid input. Please enter a number.\n";
+            std::cout << manager.color_text("Error: Invalid input. Please enter a number.", manager.getTextColor()) << std::endl; 
+        }
+    } else if (cmd == "scc") {
+        std::string text = "Welcome to Terminal Calendar";
+
+        std::cout << "Pick your calendar color (1-8): " << std::endl;
+        std::cout << "\033[30m" << "1. " + text << "\033[0m" << " (Black)\n";
+        std::cout << "\033[31m" << "2. " + text << "\033[0m" << " (Red)\n";
+        std::cout << "\033[32m" << "3. " + text << "\033[0m" << " (Green)\n";
+        std::cout << "\033[33m" << "4. " + text << "\033[0m" << " (Yellow)\n";
+        std::cout << "\033[34m" << "5. " + text << "\033[0m" << " (Blue)\n";
+        std::cout << "\033[35m" << "6. " + text << "\033[0m" << " (Magenta)\n";
+        std::cout << "\033[36m" << "7. " + text << "\033[0m" << " (Cyan)\n";
+        std::cout << "\033[37m" << "8. " + text << "\033[0m" << " (White)\n";
+
+        int choice;
+        std::string input;
+        std::getline(std::cin, input);  
+        std::istringstream inputStream(input);
+
+        if (inputStream >> choice) {
+            switch(choice){
+                case 1:
+                    manager.setCalendarBorderColor("BLACK");
+                    break;
+                case 2:
+                    manager.setCalendarBorderColor("RED");
+                    break;
+                case 3:
+                    manager.setCalendarBorderColor("GREEN");
+                    break;
+                case 4:
+                    manager.setCalendarBorderColor("YELLOW");
+                    break;
+                case 5:
+                    manager.setCalendarBorderColor("BLUE");
+                    break;
+                case 6:
+                    manager.setCalendarBorderColor("MAGENTA");
+                    break;
+                case 7:
+                    manager.setCalendarBorderColor("CYAN");
+                    break;
+                case 8:
+                    manager.setCalendarBorderColor("WHITE");
+                    break;
+                default:
+                    std::cout << manager.color_text("Unknown option. Please enter a valid option (1-8)", manager.getTextColor()) << std::endl; 
+            }
+        }
+        else {
+            std::cout << manager.color_text("Invalid input. Please enter a valid choice (1-8)", manager.getTextColor()) << std::endl; 
+        }
+    } else if (cmd == "stc") {
+        std::string text = "Welcome to Terminal Calendar";
+
+        std::cout << "Pick your text color (1-8):\n";
+        std::cout << "\033[30m" << "1. " + text << "\033[0m" << " (Black)\n";
+        std::cout << "\033[31m" << "2. " + text << "\033[0m" << " (Red)\n";
+        std::cout << "\033[32m" << "3. " + text << "\033[0m" << " (Green)\n";
+        std::cout << "\033[33m" << "4. " + text << "\033[0m" << " (Yellow)\n";
+        std::cout << "\033[34m" << "5. " + text << "\033[0m" << " (Blue)\n";
+        std::cout << "\033[35m" << "6. " + text << "\033[0m" << " (Magenta)\n";
+        std::cout << "\033[36m" << "7. " + text << "\033[0m" << " (Cyan)\n";
+        std::cout << "\033[37m" << "8. " + text << "\033[0m" << " (White)\n";
+
+        int choice;
+        std::string input;
+        std::getline(std::cin, input);  
+        std::istringstream inputStream(input);
+
+        if (inputStream >> choice) {
+            switch(choice){
+                case 1:
+                    manager.setTextColor("BLACK");
+                    break;
+                case 2:
+                    manager.setTextColor("RED");
+                    break;
+                case 3:
+                    manager.setTextColor("GREEN");
+                    break;
+                case 4:
+                    manager.setTextColor("YELLOW");
+                    break;
+                case 5:
+                    manager.setTextColor("BLUE");
+                    break;
+                case 6:
+                    manager.setTextColor("MAGENTA");
+                    break;
+                case 7:
+                    manager.setTextColor("CYAN");
+                    break;
+                case 8:
+                    manager.setTextColor("WHITE");
+                    break;
+                default:
+                    std::cout << manager.color_text("Unknown option. Please enter a valid option (1-8)", manager.getTextColor()) << std::endl;
+            }
+        }
+        else {
+            std::cout << manager.color_text("Invalid input. Please enter a valid choice (1-8)", manager.getTextColor()) << endl; 
         }
     } else if (cmd == "dc") {
         std::string inputMonth;
@@ -247,7 +349,7 @@ void processCommand(TaskManager& manager, const std::string& command) {
         if (monthNumber >= 1 && monthNumber <= 12) {
             manager.displayCalendar(monthNumber);
         } else {
-            std::cout << "Invalid month. Please enter a number (1-12) or a valid month name." << std::endl;
+            std::cout << manager.color_text("Invalid month. Please enter a number (1-12) or a valid month name.", manager.getTextColor()) << std::endl; 
         }
     } else if (cmd == "n") {
         monthNumber ++;
@@ -259,13 +361,13 @@ void processCommand(TaskManager& manager, const std::string& command) {
         manager.toggleICS();
         int val = manager.getICSVal();
         if (val == 0){
-            std::cout << "Terminal Calendar has successfully been configured to not open your calendar app upon adding a new task!" << std::endl;
+            std::cout << manager.color_text("Terminal Calendar has successfully been configured to not open your calendar app upon adding a new task!", manager.getTextColor()) << std::endl; 
         }
         else if(val == 1){
-            std::cout << "Terminal Calendar has successfully been configured to open your calendar app upon adding a new task!" << std::endl;
+            std::cout << manager.color_text("Terminal Calendar has successfully been configured to open your calendar app upon adding a new task!", manager.getTextColor()) << std::endl; 
         }
     } else if (cmd == "sort"){
-        cout << "   Select how you want events to be sorted (1-3): " << "\n   1. By ID" << "\n   2. By nearest" << "\n   3. By furthest" << "\n Your choice: " ;
+        std::cout << manager.color_text("   Select how you want events to be sorted (1-3): ", manager.getTextColor()) << manager.color_text("\n   1. By ID", manager.getTextColor()) << manager.color_text("\n   2. By nearest", manager.getTextColor()) << manager.color_text("\n   3. By furthest", manager.getTextColor()) << manager.color_text("\n Your choice: ", manager.getTextColor()) ;
         int choice;
         std::string input;
         std::getline(std::cin, input);  
@@ -275,25 +377,25 @@ void processCommand(TaskManager& manager, const std::string& command) {
             switch (choice){
                 case 1:
                     manager.sortByID();
-                    std::cout << "Your events have successfully been sorted by their ID!" << std::endl;
+                    std::cout << manager.color_text("Your events have successfully been sorted by their ID!", manager.getTextColor()) << std::endl; 
                     break;
                 case 2:
                     manager.sortByDeadlineAscending();
-                    std::cout << "Your events have successfully been sorted by the nearest due date!" << std::endl;
+                    std::cout << manager.color_text("Your events have successfully been sorted by the nearest due date!", manager.getTextColor()) << std::endl; 
                     break;
                 case 3:
                     manager.sortByDeadlineDescending();
-                    std::cout << "Your events have successfully been sorted by the furthest due date!" << std::endl;
+                    std::cout << manager.color_text("Your events have successfully been sorted by the furthest due date!", manager.getTextColor()) << std::endl; 
                     break;
                 default:
-                    std::cout << "Unknown option. Please enter a valid choice (1-3)" << std::endl;
+                    std::cout << manager.color_text("Unknown option. Please enter a valid choice (1-3)", manager.getTextColor()) << std::endl; 
                     break;
             }
         }
         else{
-            std::cout << "Invalid input. Please enter a valid choice (1-3)" << endl;
+            std::cout << manager.color_text("Invalid input. Please enter a valid choice (1-8)", manager.getTextColor()) << endl; 
         }
     } else {
-        std::cout << "Unknown command. Type 'h' for available commands." << std::endl;
+        std::cout << manager.color_text("Unknown command. Type 'h' for available commands.", manager.getTextColor()) << std::endl; 
     }
 }

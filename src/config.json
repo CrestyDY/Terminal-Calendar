@@ -1,6 +1,8 @@
 {
+    "CALENDAR_BORDER_COLOR": "MAGENTA",
     "CELL_HEIGHT": 7,
-    "CELL_WIDTH": 25,
+    "CELL_WIDTH": 28,
     "EVENT_SORT": "DESCENDING",
-    "ICS_VALUE": 0
+    "ICS_VALUE": 0,
+    "TEXT_COLOR": "CYAN"
 }
