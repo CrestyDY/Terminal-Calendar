@@ -18,6 +18,9 @@ int TaskManager::CELL_HEIGHT;
 int TaskManager::ICS_VALUE;
 std::string TaskManager::CALENDAR_BORDER_COLOR;
 std::string TaskManager::TEXT_COLOR;
+std::string TaskManager::EVENTS_COLOR;
+int TaskManager::CALENDAR_BORDER_BOLD;
+int TaskManager::TEXT_BOLD;
 json TaskManager::configFile;
 
 static const std::unordered_map<std::string, std::string> colorCodes = {
@@ -34,16 +37,27 @@ static const std::unordered_map<std::string, std::string> colorCodes = {
 TaskManager::TaskManager(const std::string& file) : filename(file), nextId(1) {
     loadConfigs();
     loadTasks();
-    printTasks();
 }
 
-std::string TaskManager::color_text(const std::string& text, const std::string& color) {
+
+std::string TaskManager::color_text(const std::string& text, const std::string& color, const int bold) {
     auto it = colorCodes.find(color);
-    if (it != colorCodes.end()) {
-        return it->second + text + "\033[0m";
-    } else {
+    if (it == colorCodes.end()) {
         return text;
     }
+    std::string result;
+    if (bold == 1) {
+        result += "\033[1m";
+    } else if (bold == 0) {
+    } else {
+        return "[Error: Invalid bold value. Use 0 or 1]";
+    }
+
+    result += it->second;
+    result += text;
+    result += "\033[0m";
+
+    return result;
 }
 
 std::string TaskManager::getExecutableDirectory(){
@@ -86,14 +100,11 @@ void TaskManager::loadConfigs(){
         TaskManager::ICS_VALUE = configFile.value("ICS_VALUE", 1);
         TaskManager::CALENDAR_BORDER_COLOR = configFile.value("CALENDAR_BORDER_COLOR", "WHITE");
         TaskManager::TEXT_COLOR = configFile.value("TEXT_COLOR", "WHITE");
+        TaskManager::EVENTS_COLOR = configFile.value("EVENTS_COLOR", "WHITE");
+        TaskManager::CALENDAR_BORDER_BOLD = configFile.value("CALENDAR_BORDER_BOLD", 0);
+        TaskManager::TEXT_BOLD = configFile.value("TEXT_BOLD", 0);
     } catch (const json::exception& e) {
         std::cerr << "Error parsing config.json: " << e.what() << std::endl;
-    }
-}
-void TaskManager::printTasks(){
-    std::cout << color_text("PRINTING TASK LIST", TaskManager::TEXT_COLOR) << std::endl;
-    for (int j = 0; j < static_cast<int>(taskList.size()); j ++){
-        std::cout << color_text("ID: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(taskList[j].id), TaskManager::TEXT_COLOR) << color_text(" Deadline: ", TaskManager::TEXT_COLOR) << color_text(taskList[j].deadline, TaskManager::TEXT_COLOR) <<  color_text(" Month: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(taskList[j].month), TaskManager::TEXT_COLOR)  << color_text(" Day: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(taskList[j].day), TaskManager::TEXT_COLOR) <<  color_text(" Description: ", TaskManager::TEXT_COLOR) << color_text(taskList[j].description, TaskManager::TEXT_COLOR) << color_text(" Completed: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(taskList[j].completed), TaskManager::TEXT_COLOR) << std::endl;
     }
 }
 void TaskManager::loadTasks() {
@@ -456,6 +467,18 @@ std::string TaskManager::getTextColor(){
     return TaskManager::TEXT_COLOR;
 }
 
+std::string TaskManager::getEventsColor(){
+    return TaskManager::EVENTS_COLOR;
+}
+
+int TaskManager::getCalendarBorderBold(){
+    return TaskManager::CALENDAR_BORDER_BOLD;
+}
+
+int TaskManager::getTextBold(){
+    return TaskManager::TEXT_BOLD;
+}
+
 void TaskManager::setCalendarCellWidth(int newWidth){
     try {
         std::string executableDirectory = getExecutableDirectory();
@@ -574,6 +597,87 @@ void TaskManager::setTextColor(std::string color){
     }
 }
 
+void TaskManager::setEventsColor(std::string color){
+    try {
+        auto it = colorCodes.find(color);
+        if (it == colorCodes.end()){
+            std::cerr << color_text("Unknown color was selected", TaskManager::TEXT_COLOR) << std::endl;
+            return ;
+        }
+        std::string executableDirectory = getExecutableDirectory();
+        std::ifstream file(executableDirectory + "/config.json");
+        if (!file){
+            std::cerr << color_text("Could not open the config file", TaskManager::TEXT_COLOR) << std::endl;
+        }
+        file >> TaskManager::configFile;
+        TaskManager::configFile["EVENTS_COLOR"] = color;
+        std::ofstream outFile("./config.json");
+        if (outFile.is_open()) {
+            outFile << TaskManager::configFile.dump(4);
+            outFile.close();
+        }
+        TaskManager::EVENTS_COLOR = color;
+    } catch (const json::exception& e) {
+        std::cerr << color_text("Error parsing config.json: ", TaskManager::TEXT_COLOR) << e.what() << std::endl;
+    }
+}
+
+void TaskManager::toggleCalendarBorderBold(){
+    try {
+        std::string executableDirectory = getExecutableDirectory();
+        std::ifstream file(executableDirectory + "/config.json");
+        if (!file){
+            std::cerr << color_text("Could not open the config file", TaskManager::TEXT_COLOR) << std::endl;
+        }
+        file >> TaskManager::configFile;
+        int newVal;
+        if (TaskManager::configFile["CALENDAR_BORDER_BOLD"] == 1){
+            newVal = 0;
+            TaskManager::configFile["CALENDAR_BORDER_BOLD"] = newVal;
+        }
+        else{
+            newVal = 1;
+            TaskManager::configFile["CALENDAR_BORDER_BOLD"] = newVal;
+        }
+        std::ofstream outFile("./config.json");
+        if (outFile.is_open()) {
+            outFile << TaskManager::configFile.dump(4);
+            outFile.close();
+        }
+        TaskManager::CALENDAR_BORDER_BOLD = newVal;
+    } catch (const json::exception& e) {
+        std::cerr << color_text("Error parsing config.json: ", TaskManager::TEXT_COLOR) << e.what() << std::endl;
+    }
+}
+
+void TaskManager::toggleTextBold(){
+    try {
+        std::string executableDirectory = getExecutableDirectory();
+        std::ifstream file(executableDirectory + "/config.json");
+        if (!file){
+            std::cerr << color_text("Could not open the config file", TaskManager::TEXT_COLOR) << std::endl;
+        }
+        file >> TaskManager::configFile;
+        int newVal;
+        if (TaskManager::configFile["TEXT_BOLD"] == 1){
+            newVal = 0;
+            TaskManager::configFile["TEXT_BOLD"] = newVal;
+        }
+        else{
+            newVal = 1;
+            TaskManager::configFile["TEXT_BOLD"] = newVal;
+        }
+        std::ofstream outFile("./config.json");
+        if (outFile.is_open()) {
+            outFile << TaskManager::configFile.dump(4);
+            outFile.close();
+        }
+        TaskManager::TEXT_BOLD = newVal;
+    } catch (const json::exception& e) {
+        std::cerr << color_text("Error parsing config.json: ", TaskManager::TEXT_COLOR) << e.what() << std::endl;
+    }
+}
+
 void TaskManager::displayCalendar(int month) {
     if (month < 1 || month > 12) {
         std::cout << color_text("Invalid month. Please enter a value between 1 and 12.\n", TaskManager::TEXT_COLOR);
@@ -610,8 +714,8 @@ void TaskManager::displayCalendar(int month) {
         std::cout << " ";
     }
     std::cout << std::endl;
-    std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() * 7, '*'), TaskManager::CALENDAR_BORDER_COLOR);
-    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << std::endl << " ";
+    std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() * 7, '*'), TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
+    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << std::endl << " ";
     std::string weekDaysAbr[] = {"Su", "Mo", "Tu", "We", "Th", "Fr"};
     for (int i = 0; i < 6; i ++){
         std::cout << color_text(weekDaysAbr[i], TaskManager::TEXT_COLOR);
@@ -636,7 +740,7 @@ void TaskManager::displayCalendar(int month) {
         if (week == 5 && !hasFifthWeek){
             continue;
         }
-        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         for (int day = 0; day < 7; ++day) {
             std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() - 1, '*'), TaskManager::CALENDAR_BORDER_COLOR);
             if (day < 6) std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
@@ -677,7 +781,7 @@ void TaskManager::displayCalendar(int month) {
                 }
                 int numberOfEvents = static_cast<int>(eventsForTheDay.size());
                 if (numberOfEvents > 0){
-                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << color_text("📌 Events: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::TEXT_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::TEXT_COLOR); 
+                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << color_text("📌 Events: ", TaskManager::EVENTS_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::EVENTS_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::EVENTS_COLOR); 
                 } else {
                     std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
                 }
@@ -811,7 +915,7 @@ void TaskManager::displayCalendar(const std::string& monthName) {
                 }
                 int numberOfEvents = static_cast<int>(eventsForTheDay.size());
                 if (numberOfEvents > 0){
-                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << color_text("📌 Events: ", TaskManager::TEXT_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::TEXT_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::TEXT_COLOR); 
+                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << color_text("📌 Events: ", TaskManager::EVENTS_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::EVENTS_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::EVENTS_COLOR); 
                 } else {
                     std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
                 }
@@ -827,6 +931,5 @@ void TaskManager::displayCalendar(const std::string& monthName) {
             }
             std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
         }
-        
     }
 }

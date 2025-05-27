@@ -34,6 +34,9 @@ private:
     static int ICS_VALUE;
     static std::string CALENDAR_BORDER_COLOR;
     static std::string TEXT_COLOR;
+    static std::string EVENTS_COLOR;
+    static int CALENDAR_BORDER_BOLD;
+    static int TEXT_BOLD;
     static json configFile;
     void loadTasks();
     void saveTasks();
@@ -44,13 +47,12 @@ private:
     
 public:
     TaskManager(const std::string& file);
-    std::string color_text(const std::string& text, const std::string& color);
+    std::string color_text(const std::string& text, const std::string& color, const int bold = TaskManager::TEXT_BOLD);
     void addTask(const std::string& description, const std::string& deadline);
     void listTasks(bool all = true);
     void completeTask(int id);
     void deleteTask(int id);
     void clearTasks();
-    void printTasks();
     void help();
 
     // Getters 
@@ -58,7 +60,10 @@ public:
     static int getCalendarCellHeight();
     static int getICSVal();
     static std::string getCalendarBorderColor();
+    static int getCalendarBorderBold();
     static std::string getTextColor();
+    static std::string getEventsColor();
+    static int getTextBold();
     std::vector<Task> getMonthTask(int month);
     int getMonthOfTask(std::string& deadline);
     int getDayOfTask(std::string& deadline);
@@ -70,6 +75,9 @@ public:
     void toggleICS();
     void setCalendarBorderColor(std::string color);
     void setTextColor(std::string color);
+    void setEventsColor(std::string color);
+    void toggleCalendarBorderBold();
+    void toggleTextBold();
     
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);

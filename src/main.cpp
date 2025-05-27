@@ -274,6 +274,7 @@ void processCommand(TaskManager& manager, const std::string& command) {
                     break;
                 default:
                     std::cout << manager.color_text("Unknown option. Please enter a valid option (1-8)", manager.getTextColor()) << std::endl; 
+                    break;
             }
         }
         else {
@@ -325,11 +326,116 @@ void processCommand(TaskManager& manager, const std::string& command) {
                     break;
                 default:
                     std::cout << manager.color_text("Unknown option. Please enter a valid option (1-8)", manager.getTextColor()) << std::endl;
+                    break;    
             }
         }
         else {
-            std::cout << manager.color_text("Invalid input. Please enter a valid choice (1-8)", manager.getTextColor()) << endl; 
+            std::cout << manager.color_text("Invalid input. Please enter a valid choice (1-8)", manager.getTextColor()) << std::endl; 
         }
+    } else if (cmd == "sec"){
+
+        std::string text = "Events: ";
+
+        std::cout << "Pick your text color (1-8):\n";
+        std::cout << "\033[30m" << "1. " + text << "\033[0m" << " (Black)\n";
+        std::cout << "\033[31m" << "2. " + text << "\033[0m" << " (Red)\n";
+        std::cout << "\033[32m" << "3. " + text << "\033[0m" << " (Green)\n";
+        std::cout << "\033[33m" << "4. " + text << "\033[0m" << " (Yellow)\n";
+        std::cout << "\033[34m" << "5. " + text << "\033[0m" << " (Blue)\n";
+        std::cout << "\033[35m" << "6. " + text << "\033[0m" << " (Magenta)\n";
+        std::cout << "\033[36m" << "7. " + text << "\033[0m" << " (Cyan)\n";
+        std::cout << "\033[37m" << "8. " + text << "\033[0m" << " (White)\n";
+
+        int choice;
+        std::string input;
+        std::getline(std::cin, input);  
+        std::istringstream inputStream(input);
+
+        if (inputStream >> choice) {
+            switch(choice){
+                case 1:
+                    manager.setEventsColor("BLACK");
+                    break;
+                case 2:
+                    manager.setEventsColor("RED");
+                    break;
+                case 3:
+                    manager.setEventsColor("GREEN");
+                    break;
+                case 4:
+                    manager.setEventsColor("YELLOW");
+                    break;
+                case 5:
+                    manager.setEventsColor("BLUE");
+                    break;
+                case 6:
+                    manager.setEventsColor("MAGENTA");
+                    break;
+                case 7:
+                    manager.setEventsColor("CYAN");
+                    break;
+                case 8:
+                    manager.setEventsColor("WHITE");
+                    break;
+                default:
+                    std::cout << manager.color_text("Unknown option. Please enter a valid option (1-8)", manager.getTextColor()) << std::endl;
+                    break;    
+            }
+        }
+        else {
+            std::cout << manager.color_text("Invalid input. Please enter a valid choice (1-8)", manager.getTextColor()) << std::endl; 
+        }
+    } else if (cmd == "scb"){
+        std::string text = "***********************";
+
+        std::cout << manager.color_text("Do you want to toggle the boldness of your calendar borders? (y/n): \n", manager.getTextColor());
+        std::cout << manager.color_text("Your current calendar border: ", manager.getTextColor()) << std::string(11, ' ') << manager.color_text(text, manager.getCalendarBorderColor(), manager.getCalendarBorderBold()) << std::endl;
+        std::cout << manager.color_text("Your calendar border after the change: ", manager.getTextColor()) << "  " << manager.color_text(text, manager.getCalendarBorderColor(), manager.getCalendarBorderBold() ^ 1) << std::endl;
+        char choice;
+        std::string input;
+        std::getline(std::cin, input);  
+        std::istringstream inputStream(input);
+        if (inputStream >> choice) {
+            switch(choice){
+                case 'y':
+                    manager.toggleCalendarBorderBold();
+                    break;
+                case 'n':
+                    break;
+                default:
+                    std::cout << manager.color_text("Unknown option. Please enter a valid option (y/n)", manager.getTextColor()) << std::endl;
+                    break;
+            }
+        }
+        else {
+            std::cout << manager.color_text("Invalid input. Please enter a valid choice (y/n)", manager.getTextColor()) << std::endl;
+        }
+    } else if (cmd == "stb"){
+        std::string text = "Welcome to Terminal Calendar !";
+
+        std::cout << manager.color_text("Do you want to toggle the boldness of Terminal Calendar's text ? (y/n): \n", manager.getTextColor());
+        std::cout << manager.color_text("Your current text: ", manager.getTextColor()) << std::string(11, ' ') << manager.color_text(text, manager.getTextColor(), manager.getTextBold()) << std::endl;
+        std::cout << manager.color_text("Your text after the change: ", manager.getTextColor()) << "  " << manager.color_text(text, manager.getTextColor(), manager.getTextBold() ^ 1) << std::endl;
+        char choice;
+        std::string input;
+        std::getline(std::cin, input);  
+        std::istringstream inputStream(input);
+        if (inputStream >> choice) {
+            switch(choice){
+                case 'y':
+                    manager.toggleTextBold();
+                    break;
+                case 'n':
+                    break;
+                default:
+                    std::cout << manager.color_text("Unknown option. Please enter a valid option (y/n)", manager.getTextColor()) << std::endl;
+                    break;
+            }
+        }
+        else {
+            std::cout << manager.color_text("Invalid input. Please enter a valid choice (y/n)", manager.getTextColor()) << std::endl;
+        }
+
     } else if (cmd == "dc") {
         std::string inputMonth;
         iss >> inputMonth; 
