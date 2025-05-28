@@ -49,6 +49,8 @@ private:
 public:
     TaskManager(const std::string& file);
     std::string color_text(const std::string& text, const std::string& color, const int bold = TaskManager::TEXT_BOLD);
+    void printYearAndMonth(int year, int month);
+    size_t count_utf8_characters_wstring(const std::string& str);
     void addTask(const std::string& description, const std::string& deadline);
     void listTasks(bool all = true);
     void completeTask(int id);

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <nlohmann/json.hpp>
 #include <filesystem>
+#include <codecvt>
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
@@ -202,6 +203,144 @@ bool TaskManager::isValidDateTime(const std::string& dateTime) {
     }
     
     return true;
+}
+
+void TaskManager::printYearAndMonth(int year, int month){
+        std::map<int, std::vector<std::string>> monthMap = {
+        {1, {
+            "     ██╗ █████╗ ███╗   ██╗",
+            "     ██║██╔══██╗████╗  ██║",
+            "     ██║███████║██╔██╗ ██║",
+            "██   ██║██╔══██║██║╚██╗██║",
+            "╚█████╔╝██║  ██║██║ ╚████║",
+            " ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝"
+        }},
+        {2, {
+            " ███████╗███████╗██████╗ ",
+            " ██╔════╝██╔════╝██╔══██╗",
+            " █████╗  █████╗  ██████╔╝",
+            " ██╔══╝  ██╔══╝  ██╔══██╗",
+            " ██║     ███████╗██████╔╝",
+            " ╚═╝     ╚══════╝╚═════╝ "
+        }},
+        {3, {
+            " ███╗   ███╗ █████╗ ██████╗ ",
+            " ████╗ ████║██╔══██╗██╔══██╗",
+            " ██╔████╔██║███████║██████╔╝",
+            " ██║╚██╔╝██║██╔══██║██╔══██╗",
+            " ██║ ╚═╝ ██║██║  ██║██║  ██║",
+            " ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝"
+        }},
+        {4, {
+            "  █████╗ ██████╗ ██████╗ ",
+            " ██╔══██╗██╔══██╗██╔══██╗",
+            " ███████║██████╔╝██████╔╝",
+            " ██╔══██║██╔═══╝ ██╔══██╗",
+            " ██║  ██║██║     ██║  ██║",
+            " ╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝"
+        }},
+        {5, {
+            " ███╗   ███╗ █████╗ ██╗   ██╗",
+            " ████╗ ████║██╔══██╗╚██╗ ██╔╝",
+            " ██╔████╔██║███████║ ╚████╔╝ ",
+            " ██║╚██╔╝██║██╔══██║  ╚██╔╝  ",
+            " ██║ ╚═╝ ██║██║  ██║   ██║   ",
+            " ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   "
+        }},
+        {6, {
+            "     ██╗██╗   ██╗███╗   ██╗",
+            "     ██║██║   ██║████╗  ██║",
+            "     ██║██║   ██║██╔██╗ ██║",
+            "██   ██║██║   ██║██║╚██╗██║",
+            "╚█████╔╝╚██████╔╝██║ ╚████║",
+            " ╚════╝  ╚═════╝ ╚═╝  ╚═══╝"
+        }},
+        {7, {
+            "     ██╗██╗   ██╗██╗     ",
+            "     ██║██║   ██║██║     ",
+            "     ██║██║   ██║██║     ",
+            "██   ██║██║   ██║██║     ",
+            "╚█████╔╝╚██████╔╝███████╗",
+            " ╚════╝  ╚═════╝ ╚══════╝"
+        }},
+        {8, {
+            "  █████╗ ██╗   ██╗ ██████╗ ",
+            " ██╔══██╗██║   ██║██╔════╝ ",
+            " ███████║██║   ██║██║  ███╗",
+            " ██╔══██║██║   ██║██║   ██║",
+            " ██║  ██║╚██████╔╝╚██████╔╝",
+            " ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ "
+        }},
+        {9, {
+            "███████╗███████╗██████╗ ████████╗",
+            "██╔════╝██╔════╝██╔══██╗╚══██╔══╝",
+            "███████╗█████╗  ██████╔╝   ██║   ",
+            "╚════██║██╔══╝  ██╔═══╝    ██║   ",
+            "███████║███████╗██║        ██║   ",
+            "╚══════╝╚══════╝╚═╝        ╚═╝   "
+        }},
+        {10, {
+            "  ██████╗  ██████╗████████╗",
+            " ██╔═══██╗██╔════╝╚══██╔══╝",
+            " ██║   ██║██║        ██║   ",
+            " ██║   ██║██║        ██║   ",
+            " ╚██████╔╝╚██████╗   ██║   ",
+            "  ╚═════╝  ╚═════╝   ╚═╝   "
+        }},
+        {11, {
+            " ███╗   ██╗ ██████╗ ██╗   ██╗",
+            " ████╗  ██║██╔═══██╗██║   ██║",
+            " ██╔██╗ ██║██║   ██║██║   ██║",
+            " ██║╚██╗██║██║   ██║╚██╗ ██╔╝",
+            " ██║ ╚████║╚██████╔╝ ╚████╔╝ ",
+            " ╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  "
+        }},
+        {12, {
+            " ██████╗ ███████╗ ██████╗ ",
+            " ██╔══██╗██╔════╝██╔════╝ ",
+            " ██║  ██║█████╗  ██║      ",
+            " ██║  ██║██╔══╝  ██║      ",
+            " ██████╔╝███████╗╚██████╗ ",
+            " ╚═════╝ ╚══════╝ ╚═════╝ "
+        }}
+    };
+    std::map<int, std::vector<std::string>> yearMap = {
+    {2025, {
+            " ██████╗  ██████╗ ██████╗ ███████╗",
+            " ╚════██╗██╔═══██╗╚════██╗██╔════╝",
+            "  █████╔╝██║   ██║ █████╔╝███████╗",
+            " ██╔═══╝ ██║   ██║██╔═══╝ ╚════██║",
+            " ███████╗╚██████╔╝███████╗███████║",
+            " ╚══════╝ ╚═════╝ ╚══════╝╚══════╝"       
+        }},
+        {2026,{
+            " ██████╗  ██████╗ ██████╗  ██████╗ ",
+            " ╚════██╗██╔═══██╗╚════██╗██╔════╝",
+            "  █████╔╝██║   ██║ █████╔╝███████╗ ",
+            " ██╔═══╝ ██║   ██║██╔═══╝ ██╔═══██╗",
+            " ███████╗╚██████╔╝███████╗╚██████╔╝",
+            " ╚══════╝ ╚═════╝ ╚══════╝ ╚═════╝ "
+        }}
+    };
+    std::vector<std::string> monthASCII = monthMap[month];
+    std::vector<std::string> yearASCII = yearMap[year];
+    for (int i = 0; i < static_cast<int>(monthASCII.size()); i ++){
+        std::cout << std::string(static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - count_utf8_characters_wstring(monthASCII[i]) - 3 - count_utf8_characters_wstring(yearASCII[i])) / 2), ' ') << color_text(monthASCII[i], TaskManager::TEXT_COLOR, 0) << "   " << color_text(yearASCII[i], TaskManager::TEXT_COLOR, 0) << std::endl;
+    }
+}
+
+size_t TaskManager::count_utf8_characters_wstring(const std::string& str) {
+    size_t count = 0;
+    for (size_t i = 0; i < str.size(); ) {
+        unsigned char c = str[i];
+        if ((c & 0x80) == 0x00) i += 1;           // 1-byte char
+        else if ((c & 0xE0) == 0xC0) i += 2;      // 2-byte char
+        else if ((c & 0xF0) == 0xE0) i += 3;      // 3-byte char
+        else if ((c & 0xF8) == 0xF0) i += 4;      // 4-byte char
+        else i += 1;  // Fallback: skip invalid byte
+        count++;
+    }
+    return count;
 }
 
 void TaskManager::addTask(const std::string& description, const std::string& deadline) {
@@ -709,24 +848,7 @@ void TaskManager::displayCalendar(int month) {
     int startWeekday = firstDay.tm_wday;
 
     int daysInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
-    std::string monthNames[] = {
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-    };
-
-    if (month == 2 &&
-        ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)) {
-        daysInMonth[1] = 29;
-    }
-    std::cout << "\n";
-    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
-        std::cout << " ";
-    }
-    std::cout << color_text(monthNames[month - 1], TaskManager::TEXT_COLOR) << " " << color_text(std::to_string(year), TaskManager::TEXT_COLOR);
-    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
-        std::cout << " ";
-    }
-    std::cout << std::endl;
+    printYearAndMonth(year, month);
     std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() * 7, '*'), TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
     std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << std::endl << " ";
     std::string weekDaysAbr[] = {"Su", "Mo", "Tu", "We", "Th", "Fr"};
@@ -843,24 +965,7 @@ void TaskManager::displayCalendar(const std::string& monthName) {
     int startWeekday = firstDay.tm_wday;
 
     int daysInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
-    std::string monthNames[] = {
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December"
-    };
-
-    if (month == 2 &&
-        ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)) {
-        daysInMonth[1] = 29;
-    }
-    std::cout << "\n";
-    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
-        std::cout << " ";
-    }
-    std::cout << color_text(monthNames[month - 1], TaskManager::TEXT_COLOR) << " " << color_text(std::to_string(year), TaskManager::TEXT_COLOR);
-    for (int i = 0; i < static_cast<int>((TaskManager::getCalendarCellWidth() * 7 - monthNames[month - 1].length() - 5) / 2); i++) {
-        std::cout << " ";
-    }
-    std::cout << std::endl;
+    printYearAndMonth(year, month);
     std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() * 7, '*'), TaskManager::CALENDAR_BORDER_COLOR);
     std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << std::endl << " ";
     std::string weekDaysAbr[] = {"Su", "Mo", "Tu", "We", "Th", "Fr"};
