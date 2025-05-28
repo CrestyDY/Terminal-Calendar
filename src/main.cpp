@@ -1,4 +1,4 @@
-#include "../include/task_manager.h"
+﻿#include "../include/task_manager.h"
 #include <sstream>
 #include <cstring>
 #include <ctime>
@@ -8,6 +8,9 @@
 #include <algorithm>
 #include <nlohmann/json.hpp>
 #include <filesystem>
+#include <windows.h>
+#include <io.h>
+#include <fcntl.h>
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
@@ -46,6 +49,19 @@ std::string getExecutableDirectory(){
 }
 
 int main(int argc, char* argv[]) {
+
+    #ifdef _WIN32
+        // Enable virtual terminal processing for ANSI escape sequences
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        DWORD dwMode = 0;
+        GetConsoleMode(hOut, &dwMode);
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(hOut, dwMode);
+
+        // Set UTF-8 code page
+        SetConsoleOutputCP(CP_UTF8);
+    #endif
+
     std::string executableDirectory = getExecutableDirectory();
     std::string dataFile = executableDirectory + "/tasks.dat";
     

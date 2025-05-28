@@ -1,4 +1,4 @@
-#include "../include/task_manager.h"
+﻿#include "../include/task_manager.h"
 #include <map>
 #include <iostream>
 #include <iomanip>
@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <nlohmann/json.hpp>
 #include <filesystem>
-#include <codecvt>
+#include <windows.h>
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
@@ -201,7 +201,6 @@ bool TaskManager::isValidDateTime(const std::string& dateTime) {
     for (int i = 14; i < 16; i++) {
         if (!isdigit(dateTime[i])) return false;
     }
-    
     return true;
 }
 
