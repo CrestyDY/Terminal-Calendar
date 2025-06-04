@@ -466,13 +466,51 @@ void processCommand(TaskManager& manager, const std::string& command) {
         monthNumber --;
         manager.displayCalendar(monthNumber);
     } else if (cmd == "t"){
-        manager.toggleICS();
         int val = manager.getICSVal();
         if (val == 0){
-            std::cout << manager.color_text("Terminal Calendar has successfully been configured to not open your calendar app upon adding a new task!", manager.getTextColor()) << std::endl; 
+            std::cout << manager.color_text("Terminal Calendar is currently configured to not open your calendar app upon adding a new task. \nDo you want to configure it so that it opens your calendar app when adding a new task? (y/n)", manager.getTextColor()) << std::endl;
+            char choice;
+            std::string input;
+            std::getline(std::cin, input);
+            std::istringstream inputStream(input);
+            if (inputStream >> choice) {
+                switch (choice){
+                    case 'y':
+                        manager.toggleICS();
+                        std::cout << manager.color_text("Terminal Calendar has been configured to open your calendar app upon adding a new task!", manager.getTextColor()) << std::endl;
+                        break;
+                    case 'n':
+                        std::cout << manager.color_text("No changes were made.", manager.getTextColor()) << std::endl;
+                        break;
+                    default:
+                        std::cout << manager.color_text("Unknown input. Please enter a valid input (y/n).", manager.getTextColor()) << std::endl;
+                        break;
+                }
+            }
         }
-        else if(val == 1){
-            std::cout << manager.color_text("Terminal Calendar has successfully been configured to open your calendar app upon adding a new task!", manager.getTextColor()) << std::endl; 
+        else if (val == 1){
+            std::cout << manager.color_text("Terminal Calendar is currently configured to open your calendar app upon adding a new task. \nDo you want to configure it so that it does not open your calendar app when adding a new task? (y/n)", manager.getTextColor()) << std::endl;
+            char choice;
+            std::string input;
+            std::getline(std::cin, input);
+            std::istringstream inputStream(input);
+            if (inputStream >> choice) {
+                switch (choice){
+                    case 'y':
+                        manager.toggleICS();
+                        std::cout << manager.color_text("Terminal Calendar has been configured to not open your calendar app upon adding a new task!", manager.getTextColor()) << std::endl;
+                        break;
+                    case 'n':
+                        std::cout << manager.color_text("No changes were made.", manager.getTextColor()) << std::endl;
+                        break;
+                    default:
+                        std::cout << manager.color_text("Unknown input. Please enter a valid input (y/n).", manager.getTextColor()) << std::endl;
+                        break;
+                }
+            }
+        }
+        else {
+            std::cerr << manager.color_text("Error reading config file. Detected an invalid value.", manager.getTextColor()) << std::endl;
         }
     } else if (cmd == "sort"){
         std::cout << manager.color_text("   Select how you want events to be sorted (1-3): ", manager.getTextColor()) << manager.color_text("\n   1. By ID", manager.getTextColor()) << manager.color_text("\n   2. By nearest", manager.getTextColor()) << manager.color_text("\n   3. By furthest", manager.getTextColor()) << manager.color_text("\n Your choice: ", manager.getTextColor()) ;

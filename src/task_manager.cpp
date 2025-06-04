@@ -484,11 +484,15 @@ void TaskManager::help() {
     std::cout << color_text("  p                                 - Display calendar for previous month", TaskManager::TEXT_COLOR) << std::endl;
     std::cout << color_text("  dc <Month name or number (1-12)>  - Display calendar for specified month", TaskManager::TEXT_COLOR) << std::endl;
     std::cout << std::endl << color_text("Task Manager - User-Specific Commands:", TaskManager::TEXT_COLOR) << std::endl << std::endl;
+    std::cout << color_text("  fetch                             - Get your current configurations", TaskManager::TEXT_COLOR) << std::endl;
     std::cout << color_text("  sh <New cell height (5-10)>       - Set a new height for calendar cells", TaskManager::TEXT_COLOR) << std::endl;
     std::cout << color_text("  sw <New cell width (12-40)>       - Set a new width for calendar cells", TaskManager::TEXT_COLOR) << std::endl;
     std::cout << color_text("  t                                 - Toggle whether your calendar app is opened upon adding a new task", TaskManager::TEXT_COLOR) << std::endl;
     std::cout << color_text("  stc                               - Change the text color", TaskManager::TEXT_COLOR) << std::endl;
     std::cout << color_text("  scc                               - Change the calendar border color", TaskManager::TEXT_COLOR) << std::endl;
+    std::cout << color_text("  sec                               - Change the color of events on the calendar", TaskManager::TEXT_COLOR) <<std::endl;
+    std::cout << color_text("  stb                               - Change whether the text appears bold", TaskManager::TEXT_COLOR);
+    std::cout << color_text("  scb                               - Change whether the calendar borders appear bold", TaskManager::TEXT_COLOR);
     std::cout << color_text("  sort                              - Configure how the events are sorted upon listed", TaskManager::TEXT_COLOR) << std::endl;
 }
 
@@ -880,14 +884,14 @@ void TaskManager::displayCalendar(int month) {
             std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() - 1, '*'), TaskManager::CALENDAR_BORDER_COLOR);
             if (day < 6) std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
         }
-        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         std::cout << "\n";
 
         for (int day = 0; day < 7; ++day) {
             int idx = week * 7 + day;
             int dayNumber = calendarGrid[idx];
             
-            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
             if (dayNumber != 0) {
                 std::cout << " " << std::setw(2) << color_text(std::to_string(dayNumber), TaskManager::TEXT_COLOR);
                 for (int i = 0; i < TaskManager::getCalendarCellWidth() - 2 - static_cast<int>(std::to_string(dayNumber).size()); i ++){
@@ -897,7 +901,7 @@ void TaskManager::displayCalendar(int month) {
                 std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
             }
         }
-        std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
+        std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
 
         for (int row = 0; row < TaskManager::getCalendarCellHeight() - 3; ++row) {
             for (int day = 0; day < 7; ++day) {
@@ -916,23 +920,22 @@ void TaskManager::displayCalendar(int month) {
                 }
                 int numberOfEvents = static_cast<int>(eventsForTheDay.size());
                 if (numberOfEvents > 0){
-                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << color_text("📌 Events: ", TaskManager::EVENTS_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::EVENTS_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::EVENTS_COLOR); 
+                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << color_text("📌 Events: ", TaskManager::EVENTS_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::EVENTS_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::EVENTS_COLOR); 
                 } else {
-                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
+                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
                 }
             }
-            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         }
 
         if ((week == 4 && !hasFifthWeek) || (week == 5 && hasFifthWeek)) {
-            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
             for (int day = 0; day < 7; ++day) {
-                std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() - 1, '*'), TaskManager::CALENDAR_BORDER_COLOR);
-                if (day < 6) std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+                std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() - 1, '*'), TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
+                if (day < 6) std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
             }
-            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         }
-        
     }
 }
 
@@ -966,8 +969,8 @@ void TaskManager::displayCalendar(const std::string& monthName) {
 
     int daysInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
     printYearAndMonth(year, month);
-    std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() * 7, '*'), TaskManager::CALENDAR_BORDER_COLOR);
-    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << std::endl << " ";
+    std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() * 7, '*'), TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
+    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << std::endl << " ";
     std::string weekDaysAbr[] = {"Su", "Mo", "Tu", "We", "Th", "Fr"};
     for (int i = 0; i < 6; i ++){
         std::cout << color_text(weekDaysAbr[i], TaskManager::TEXT_COLOR);
@@ -992,19 +995,19 @@ void TaskManager::displayCalendar(const std::string& monthName) {
         if (week == 5 && !hasFifthWeek){
             continue;
         }
-        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         for (int day = 0; day < 7; ++day) {
             std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() - 1, '*'), TaskManager::CALENDAR_BORDER_COLOR);
             if (day < 6) std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
         }
-        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+        std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         std::cout << "\n";
 
         for (int day = 0; day < 7; ++day) {
             int idx = week * 7 + day;
             int dayNumber = calendarGrid[idx];
             
-            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
             if (dayNumber != 0) {
                 std::cout << " " << std::setw(2) << color_text(std::to_string(dayNumber), TaskManager::TEXT_COLOR);
                 for (int i = 0; i < TaskManager::getCalendarCellWidth() - 2 - static_cast<int>(std::to_string(dayNumber).size()); i ++){
@@ -1014,7 +1017,7 @@ void TaskManager::displayCalendar(const std::string& monthName) {
                 std::cout << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
             }
         }
-        std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
+        std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
 
         for (int row = 0; row < TaskManager::getCalendarCellHeight() - 3; ++row) {
             for (int day = 0; day < 7; ++day) {
@@ -1033,21 +1036,21 @@ void TaskManager::displayCalendar(const std::string& monthName) {
                 }
                 int numberOfEvents = static_cast<int>(eventsForTheDay.size());
                 if (numberOfEvents > 0){
-                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << color_text("📌 Events: ", TaskManager::EVENTS_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::EVENTS_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::EVENTS_COLOR); 
+                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << color_text("📌 Events: ", TaskManager::EVENTS_COLOR) << color_text(std::to_string(numberOfEvents), TaskManager::EVENTS_COLOR) << color_text(std::string(TaskManager::getCalendarCellWidth() - 12 - std::to_string(numberOfEvents).length(), ' '), TaskManager::EVENTS_COLOR); 
                 } else {
-                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR) << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
+                    std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << std::string(TaskManager::getCalendarCellWidth() - 1, ' ');
                 }
             }
-            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         }
 
         if ((week == 4 && !hasFifthWeek) || (week == 5 && hasFifthWeek)) {
-            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
             for (int day = 0; day < 7; ++day) {
-                std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() - 1, '*'), TaskManager::CALENDAR_BORDER_COLOR);
-                if (day < 6) std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR);
+                std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() - 1, '*'), TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
+                if (day < 6) std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
             }
-            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR);
+            std::cout << color_text("*\n", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
         }
     }
 }
