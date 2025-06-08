@@ -38,6 +38,7 @@ private:
     static std::string SORT_METHOD;
     static int CALENDAR_BORDER_BOLD;
     static int TEXT_BOLD;
+    static int EVENT_DISPLAY;
     static json configFile;
     void loadTasks();
     void saveTasks();
@@ -71,6 +72,7 @@ public:
     int getMonthOfTask(std::string& deadline);
     int getDayOfTask(std::string& deadline);
     int getYearOfTask(std::string& deadline);
+    int getEventDisplay();
     
     // Setters
     void setCalendarCellWidth(int newWidth);
@@ -81,6 +83,7 @@ public:
     void setEventsColor(std::string color);
     void toggleCalendarBorderBold();
     void toggleTextBold();
+    void toggleEventDisplay();
     
     void displayCalendar(int month);
     void displayCalendar(const std::string& month);

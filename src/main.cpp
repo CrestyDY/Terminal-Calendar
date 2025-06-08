@@ -414,7 +414,6 @@ void processCommand(TaskManager& manager, const std::string& command) {
         }
     } else if (cmd == "stb"){
         std::string text = "Welcome to Terminal Calendar !";
-
         std::cout << manager.color_text("Do you want to toggle the boldness of Terminal Calendar's text ? (y/n): \n", manager.getTextColor());
         std::cout << manager.color_text("Your current text: ", manager.getTextColor()) << std::string(11, ' ') << manager.color_text(text, manager.getTextColor(), manager.getTextBold()) << std::endl;
         std::cout << manager.color_text("Your text after the change: ", manager.getTextColor()) << "  " << manager.color_text(text, manager.getTextColor(), manager.getTextBold() ^ 1) << std::endl;
@@ -499,6 +498,53 @@ void processCommand(TaskManager& manager, const std::string& command) {
                     case 'y':
                         manager.toggleICS();
                         std::cout << manager.color_text("Terminal Calendar has been configured to not open your calendar app upon adding a new task!", manager.getTextColor()) << std::endl;
+                        break;
+                    case 'n':
+                        std::cout << manager.color_text("No changes were made.", manager.getTextColor()) << std::endl;
+                        break;
+                    default:
+                        std::cout << manager.color_text("Unknown input. Please enter a valid input (y/n).", manager.getTextColor()) << std::endl;
+                        break;
+                }
+            }
+        }
+        else {
+            std::cerr << manager.color_text("Error reading config file. Detected an invalid value.", manager.getTextColor()) << std::endl;
+        }
+    } else if (cmd == "display"){
+        int val = manager.getEventDisplay();
+        if (val == 0){
+            std::cout << manager.color_text("Terminal Calendar is currently configured to display a summary of events for the day on the calendar. \nDo you want to configure it so that it lists the event descriptions on your calendar instead? (y/n)", manager.getTextColor()) << std::endl;
+            char choice;
+            std::string input;
+            std::getline(std::cin, input);
+            std::istringstream inputStream(input);
+            if (inputStream >> choice) {
+                switch (choice){
+                    case 'y':
+                        manager.toggleEventDisplay();
+                        std::cout << manager.color_text("Terminal Calendar has been configured to list task descriptions on your calendar!", manager.getTextColor()) << std::endl;
+                        break;
+                    case 'n':
+                        std::cout << manager.color_text("No changes were made.", manager.getTextColor()) << std::endl;
+                        break;
+                    default:
+                        std::cout << manager.color_text("Unknown input. Please enter a valid input (y/n).", manager.getTextColor()) << std::endl;
+                        break;
+                }
+            }
+        }
+        else if (val == 1){
+            std::cout << manager.color_text("Terminal Calendar is currently configured to list task descriptions on the calendar. \nDo you want to configure it so that it does displays a summary of events for the day instead? (y/n)", manager.getTextColor()) << std::endl;
+            char choice;
+            std::string input;
+            std::getline(std::cin, input);
+            std::istringstream inputStream(input);
+            if (inputStream >> choice) {
+                switch (choice){
+                    case 'y':
+                        manager.toggleEventDisplay();
+                        std::cout << manager.color_text("Terminal Calendar has been configured to display a summary of events for the day!", manager.getTextColor()) << std::endl;
                         break;
                     case 'n':
                         std::cout << manager.color_text("No changes were made.", manager.getTextColor()) << std::endl;
