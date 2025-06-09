@@ -54,6 +54,7 @@ public:
     size_t count_utf8_characters_wstring(const std::string& str);
     void addTask(const std::string& description, const std::string& deadline);
     void listTasks(bool all = true);
+    void listTasksByDay(int month, int day);
     void completeTask(int id);
     void deleteTask(int id);
     void clearTasks();
