@@ -1,5 +1,3 @@
-# Task Manager
-
 ![Terminal Calendar](./etc/Terminal_Calendar.png)
 
 A terminal-based task management application with calendar visualization and CalDAV compatibility.
