@@ -90,12 +90,8 @@ void TaskManager::clearFromCursor() {
 }
 
 int TaskManager::calculateCalendarHeight() {
-    // Month/year header: 2 lines
-    // Day names header: 2 lines  
-    // Border lines: 1 line
-    // Maximum 6 weeks * (1 border + cell_height rows)
-    // Bottom border: 1 line
-    // Extra buffer: 5 lines
+	// 8 lines of buffer (6 for the month and 2 for the days of the week)
+	// Use cell height + 1 (for the calendar border character) * 6 (max number of weeks per month)
     return 8 + (6 * (CELL_HEIGHT + 1));
 }
 
@@ -993,7 +989,6 @@ void TaskManager::displayCalendar(int month, bool useStaticDisplay) {
 
     int daysInMonth[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
     
-    // Pre-calculate calendar grid to determine if there's a fifth week
     std::vector<int> calendarGrid(42, 0);
     for (int i = 0; i < daysInMonth[month - 1]; ++i) {
         calendarGrid[startWeekday + i] = i + 1;
@@ -1008,21 +1003,16 @@ void TaskManager::displayCalendar(int month, bool useStaticDisplay) {
         actualCalendarHeight += 5 * (CELL_HEIGHT + 1); // 5 weeks
     }
 
-    // For static display mode (used with c/n/p commands), move cursor up to overwrite previous calendar
     if (useStaticDisplay && !firstCalendarDisplay) {
-        // Move cursor up by the number of lines from the last calendar display
         std::cout << "\033[" << lastCalendarHeight << "A";
-        // Clear from cursor to end of screen to remove any leftover content
         clearFromCursor();
     }
 
-    // Mark that we've displayed at least one calendar
     if (useStaticDisplay) {
         firstCalendarDisplay = false;
         lastCalendarHeight = actualCalendarHeight;
     }
 
-    // Now display the actual calendar content
     printYearAndMonth(year, month);
     std::cout << color_text(std::string(TaskManager::getCalendarCellWidth() * 7, '*'), TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD);
     std::cout << color_text("*", TaskManager::CALENDAR_BORDER_COLOR, TaskManager::CALENDAR_BORDER_BOLD) << std::endl << " ";

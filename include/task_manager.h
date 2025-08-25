@@ -40,7 +40,7 @@ private:
     static int TEXT_BOLD;
     static int EVENT_DISPLAY;
     static json configFile;
-    static int CALENDAR_HEIGHT;  // Maximum height for calendar display
+    static int CALENDAR_HEIGHT;
     void loadTasks();
     void saveTasks();
     void loadConfigs();
