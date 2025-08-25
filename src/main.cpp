@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     }
 
     TaskManager manager(dataFile);
-
+    
     std::cout << manager.color_text("Task Manager CLI (Type 'h' for commands, 'exit' to quit)", manager.getTextColor()) << std::endl;
 
     if ((argc > 1 && std::strcmp(argv[1], "--file") != 0) || argc > 3) {
@@ -212,7 +212,7 @@ void processCommand(TaskManager& manager, const std::string& command) {
             manager.help();
         } else if (cmd == "c"){
             monthNumber = ltm->tm_mon + 1;
-            manager.displayCalendar(monthNumber);
+            manager.displayCalendar(monthNumber, true);  // Use static display
         } else if (cmd == "sh"){
             int newHeight;
             if (iss >> newHeight){
@@ -463,16 +463,16 @@ void processCommand(TaskManager& manager, const std::string& command) {
             }
 
             if (monthNumber >= 1 && monthNumber <= 12) {
-                manager.displayCalendar(monthNumber);
+                manager.displayCalendar(monthNumber, true);  // Use static display
             } else {
                 std::cout << manager.color_text("Invalid month. Please enter a number (1-12) or a valid month name.", manager.getTextColor()) << std::endl; 
             }
         } else if (cmd == "n") {
             monthNumber ++;
-            manager.displayCalendar(monthNumber);
+            manager.displayCalendar(monthNumber, true);  // Use static display for navigation
         } else if (cmd == "p") {
             monthNumber --;
-            manager.displayCalendar(monthNumber);
+            manager.displayCalendar(monthNumber, true);  // Use static display for navigation
         } else if (cmd == "t"){
             int val = manager.getICSVal();
             if (val == 0){

@@ -40,9 +40,16 @@ private:
     static int TEXT_BOLD;
     static int EVENT_DISPLAY;
     static json configFile;
+    static int CALENDAR_HEIGHT;  // Maximum height for calendar display
     void loadTasks();
     void saveTasks();
     void loadConfigs();
+    void clearScreen();
+    void moveCursor(int row, int col);
+    void saveCursor();
+    void restoreCursor();
+    void clearLine();
+    void clearFromCursor();
     std::string getCurrentDateTime();
     std::string getExecutableDirectory();
     bool isValidDateTime(const std::string& dateTime);
@@ -86,8 +93,9 @@ public:
     void toggleTextBold();
     void toggleEventDisplay();
     
-    void displayCalendar(int month);
+    void displayCalendar(int month, bool useStaticDisplay = true);
     void displayCalendar(const std::string& month);
+    static int calculateCalendarHeight();
     void displaySummary();
     void sortByID();
     void sortByDeadlineAscending();
