@@ -103,10 +103,7 @@ Use the `h` command within the application to display all available commands and
 
 ## Platform Support
 
-The application is cross-platform and supports:
-- Linux
-- macOS
-- Windows
+Mainly tested on a Linux device, but has integration for Windows and MacOS
 
 Terminal color support and ANSI escape sequences are used for enhanced visual display.
 
