@@ -53,11 +53,11 @@ make
 - Generate ICS files that can be imported into CalDAV-compatible applications
 - Automatic ICS file generation on task updates
 - Integration with standard calendar applications
+- Add your CalDAV calendar to your calendar application to sync directly upon adding a new task.
 
 ### Configuration
 - Customizable settings stored in `config.json`
 - Adjust calendar colors, cell dimensions, and display preferences
-- Configure task display modes (summary or full descriptions)
 - Settings persist between sessions
 
 ## Usage

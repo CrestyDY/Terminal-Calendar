@@ -965,6 +965,8 @@ void TaskManager::displayCalendar(int month, bool useStaticDisplay) {
     // Static variable to track if we've displayed a calendar before
     static bool firstCalendarDisplay = true;
     static int lastCalendarHeight = 0;
+    static int savedRow = 1;
+    static int savedCol = 1;
 
     int newYear;
     
@@ -1004,11 +1006,18 @@ void TaskManager::displayCalendar(int month, bool useStaticDisplay) {
     }
 
     if (useStaticDisplay && !firstCalendarDisplay) {
-        std::cout << "\033[" << lastCalendarHeight << "A";
+        moveCursor(savedRow, savedCol);
         clearFromCursor();
     }
 
     if (useStaticDisplay) {
+        if (firstCalendarDisplay) {
+            std::cout << "\033[6n";
+            std::cout.flush();
+            
+            savedRow = 1;
+            savedCol = 1;
+        }
         firstCalendarDisplay = false;
         lastCalendarHeight = actualCalendarHeight;
     }
@@ -1148,7 +1157,11 @@ void TaskManager::displayCalendar(int month, bool useStaticDisplay) {
         }
     }
     
-    // No cursor restoration needed for inline display
+    if (useStaticDisplay) {
+        // Save position at the top of where we just drew the calendar
+        savedRow = 1;  // We'll always redraw from the same position
+        savedCol = 1;
+    }
 }
 
 void TaskManager::displayCalendar(const std::string& monthName) {
