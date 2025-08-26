@@ -65,7 +65,7 @@ make
 Launch the application and use the following commands:
 
 ### General Commands
-- `nt <description> [deadline]` - Add a new task with optional deadline (YYYY-MM-DD [HH:MM])
+- `nt <description> [deadline]` - Add a new task with optional deadline (YYYY-MM-DD [HH:MM]). If no deadline is provided, defaults to the end of the current day.
 - `ls` - List all pending tasks
 - `lsa` - List all tasks including completed ones
 - `ft <id>` - Mark a task as completed

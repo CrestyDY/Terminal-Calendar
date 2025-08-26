@@ -88,7 +88,9 @@ int main(int argc, char* argv[]) {
 }
 
 void exportToICSFile(const std::string& description, const std::string& deadline, TaskManager& manager) {
-    std::ofstream file("./task.ics");
+    std::string executableDirectory = getExecutableDirectory();
+    std::string icsPath = executableDirectory + "/task.ics";
+    std::ofstream file(icsPath);
     if (!file) {
         std::cerr << "Error: Could not create task.ics file." << std::endl;
         return;
@@ -129,11 +131,14 @@ void exportToICSFile(const std::string& description, const std::string& deadline
     int icsVal = manager.getICSVal();
     if (icsVal == 1){
         #ifdef _WIN32
-            system("start ./task.ics"); 
+            std::string cmd = "start \"\" \"" + icsPath + "\"";
+            system(cmd.c_str()); 
         #elif __APPLE__
-            system("open ./task.ics");
+            std::string cmd = "open \"" + icsPath + "\"";
+            system(cmd.c_str());
         #else
-            system("xdg-open ./task.ics"); 
+            std::string cmd = "xdg-open \"" + icsPath + "\" 2>/dev/null &";
+            system(cmd.c_str()); 
         #endif
     }
 }
@@ -180,10 +185,17 @@ void processCommand(TaskManager& manager, const std::string& command) {
                         }
                     }
                 }
-                manager.addTask(description, deadline);
-                if (!deadline.empty()) {
-                    exportToICSFile(description, deadline, manager);
+                
+                if (deadline.empty()) {
+                    time_t now = time(0);
+                    tm *ltm = localtime(&now);
+                    char dateStr[32];
+                    std::strftime(dateStr, sizeof(dateStr), "%Y-%m-%d 23:59", ltm);
+                    deadline = std::string(dateStr);
                 }
+                
+                manager.addTask(description, deadline);
+                exportToICSFile(description, deadline, manager);
             } else {
                 std::cout << manager.color_text("Error: Task description cannot be empty.", manager.getTextColor()) << std::endl;
             }
@@ -220,7 +232,7 @@ void processCommand(TaskManager& manager, const std::string& command) {
                     manager.setCalendarCellHeight(newHeight);
                     cout << manager.color_text("The cell height of the calendar has been set to: ", manager.getTextColor()) << newHeight << "\n";
                 } else {
-                    std::cout << manager.color_text("Error: Height must be between, manager.getTextColor()) 5 and 10.\n", manager.getTextColor()); 
+                    std::cout << manager.color_text("Error: Height must be between 5 and 10.\n", manager.getTextColor()); 
                 }
             } else {
             std::cout << manager.color_text("Error: Invalid input.Please enter a number.", manager.getTextColor()) << std::endl; 
