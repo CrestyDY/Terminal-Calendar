@@ -10,6 +10,8 @@
 #include <nlohmann/json.hpp>
 #include <filesystem>
 #include <codecvt>
+#include <sys/select.h>
+#include <unistd.h>
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
@@ -1012,9 +1014,6 @@ void TaskManager::displayCalendar(int month, bool useStaticDisplay) {
 
     if (useStaticDisplay) {
         if (firstCalendarDisplay) {
-            std::cout << "\033[6n";
-            std::cout.flush();
-            
             savedRow = 1;
             savedCol = 1;
         }

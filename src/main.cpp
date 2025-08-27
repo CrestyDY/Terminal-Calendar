@@ -48,7 +48,13 @@ std::string getExecutableDirectory(){
 
 int main(int argc, char* argv[]) {
     std::string executableDirectory = getExecutableDirectory();
-    std::string dataFile = executableDirectory + "/tasks.dat";
+    std::string srcDirectory = executableDirectory;
+    
+    if (!fs::exists(srcDirectory)) {
+        fs::create_directories(srcDirectory);
+    }
+    
+    std::string dataFile = srcDirectory + "/tasks.dat";
     
     if (argc > 1 && std::strcmp(argv[1], "--file") == 0 && argc > 2) {
         dataFile = argv[2];
@@ -89,7 +95,8 @@ int main(int argc, char* argv[]) {
 
 void exportToICSFile(const std::string& description, const std::string& deadline, TaskManager& manager) {
     std::string executableDirectory = getExecutableDirectory();
-    std::string icsPath = executableDirectory + "/task.ics";
+    std::string srcDirectory = executableDirectory;
+    std::string icsPath = srcDirectory + "/task.ics";
     std::ofstream file(icsPath);
     if (!file) {
         std::cerr << "Error: Could not create task.ics file." << std::endl;
